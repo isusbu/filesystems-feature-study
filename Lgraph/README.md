@@ -1,7 +1,7 @@
 #  LLM -assisted code optimizer using LangGraph(Streamlit)
 
 This folder contains a Streamlit app (`app.py`) and analysis logic (`slicer.py`) to
-inspect an LLVM `print-callgraph` output for **sqlite3.c** and decide whether a
+inspect an LLVM `print-callgraph` output for **sqlite3.c**, Sqlite source code and prompt to  decide whether a
 target function can be safely removed or not.
 
 ---
@@ -35,7 +35,7 @@ python -m pip install streamlit openai "langgraph>=0.2.28" "langchain>=0.2.15" t
 python -m pip install langgraph-checkpoint-sqlite aiosqlite
 ```
 
-#OpenAI credentials (in the same shell  used to run Streamlit):
+OpenAI credentials (in the same shell  used to run Streamlit):
 
 ```bash
 export OPENAI_API_KEY="sk-... key ..."
