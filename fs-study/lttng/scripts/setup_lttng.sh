@@ -14,4 +14,6 @@ sudo lttng add-context --kernel --type ppid
 sudo lttng add-context --kernel --type callstack-kernel
 sudo lttng add-context --kernel --type callstack-user
 
-sudo lttng enable-event --kernel --all --syscall
+# sudo lttng enable-event --kernel --all --syscall
+# dropping LTTng syscalls
+sudo lttng enable-event --kernel --all --syscall --filter 'procname != "lttng-consumerd" && procname != "lttng-sessiond"'
