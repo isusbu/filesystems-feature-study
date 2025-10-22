@@ -33,10 +33,22 @@ To enable LTTng, after installing it, follow these instructions.
 ```bash
 # to trace syscalls, LTTng needs a session (a daemon), the output will be stored in the given address
 sudo lttng create syscalls-session --output /tmp/lttng-traces-100
+
+# now we would add context that we want to be included in tracing logs
+sudo lttng add-context --kernel --type vpid
+sudo lttng add-context --kernel --type vtid
+sudo lttng add-context --kernel --type procname
+sudo lttng add-context --kernel --type pid
+sudo lttng add-context --kernel --type ppid
+sudo lttng add-context --kernel --type callstack-kernel
+sudo lttng add-context --kernel --type callstack-user
+
 # then we pass whatever we want to trace, in this case all syscalls
 sudo lttng enable-event --kernel --all --syscall
+
 # next we start our lttng session (non-blocking operation)
 sudo lttng start
+
 # after we are done, we stop our session
 sudo lttng stop
 ```
