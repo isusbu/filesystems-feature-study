@@ -15,6 +15,7 @@ env/
 myvenv/
 venv/
 .env/
+.env
 
 # Tracing logs
 trace.txt
