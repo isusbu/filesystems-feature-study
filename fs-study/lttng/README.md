@@ -1,5 +1,9 @@
 # LTTng
 
+<!--
+This one goes to my kind labmate Yifei who helped in LTTng configuration.
+-->
+
 LTTng is a tracing tool with low overhead and scalable for tracing system calls in a Linux machine.
 
 ## Installation

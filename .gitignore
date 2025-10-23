@@ -21,3 +21,4 @@ venv/
 trace.txt
 trace.txt*
 plots/
+logs/
