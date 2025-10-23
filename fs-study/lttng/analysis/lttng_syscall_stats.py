@@ -135,7 +135,8 @@ if __name__ == "__main__":
     # check args
     if len(sys.argv) < 2:
         print("Usage: python3 lttng_syscall_stats.py <trace_file>")
-        sys.exit(1)
+        sys.argv.append("trace.txt")  # for testing purposes
+        print("No trace file provided, using default: trace.txt")
     
     print("Analyzing syscall traces...")
 
