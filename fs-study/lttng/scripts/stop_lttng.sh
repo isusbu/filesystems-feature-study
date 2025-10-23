@@ -1,6 +1,16 @@
 #!/usr/bin/env sh
 
+# session name
 SESSION="all-syscalls-session"
+
+# output directory
+OUTPUT="/tmp"
+
+## load configs from .config.env if it exists
+CFG_FILE="$(pwd)/.config.env"
+if [ -f "${CFG_FILE}" ]; then
+  . "${CFG_FILE}"
+fi
 
 # filter_logs.sh
 # Filters log files to include only lines containing specified keywords.
@@ -12,7 +22,7 @@ sudo lttng destroy syscalls-session-"${SESSION}"
 echo "LTTng tracing session 'syscalls-session-${SESSION}' stopped and destroyed."
 
 # convert the trace to a human-readable format
-sudo babeltrace2 /tmp/lttng-traces-"${SESSION}" > trace."${SESSION}".txt
+sudo babeltrace2 "${OUTPUT}/lttng-traces-${SESSION}" > trace."${SESSION}".txt
 
 # filter the trace file to remove unwanted lines
 sudo grep -vE 'procname = "lttng-consumerd"|procname = "lttng"|procname = "Client manageme"' trace."${SESSION}".txt > filtered_trace."${SESSION}".txt

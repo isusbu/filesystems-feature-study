@@ -28,47 +28,27 @@ sudo apt-get install python3-babeltrace
 
 ## Tracing example
 
-To enable LTTng, after installing it, follow these instructions (or simple run `scripts/setup_lttng.sh`).
+To enable LTTng, after installing it, follow these instructions:
 
 ```bash
-# to trace syscalls, LTTng needs a session (a daemon), the output will be stored in the given address
-sudo lttng create syscalls-session --output /tmp/lttng-traces-100
+# set execute permission for lttng scripts
+sudo chmod u+x scripts/start_lttng.sh scripts/stop_lttng.sh
 
-# now we would add context that we want to be included in tracing logs
-sudo lttng add-context --kernel --type vpid
-sudo lttng add-context --kernel --type vtid
-sudo lttng add-context --kernel --type procname
-sudo lttng add-context --kernel --type pid
-sudo lttng add-context --kernel --type ppid
-sudo lttng add-context --kernel --type callstack-kernel
-sudo lttng add-context --kernel --type callstack-user
+# run the lttng start script
+sudo scripts/start_lttng.sh
 
-# then we pass whatever we want to trace, in this case all syscalls
-sudo lttng enable-event --kernel --all --syscall
-```
-
-Now start the lttng session:
-
-```bash
-# next we start our lttng session (non-blocking operation)
-sudo lttng start
-
-# after we are done, we stop our session
-sudo lttng stop
-```
-
-After that we use `babeltrace2` to export our logs into a text-based format file.
-
-```bash
-sudo babeltrace2 /tmp/lttng-traces-100 > example.trace.txt
+# stop the lttng after you are done
+sudo scripts/stop_lttng.sh
 ```
 
 Now we can simply pass this output to any analysis script. In this case we use a simple python script.
 
 ```bash
-# this script drops the syscalls made by any lttng processes, and counts the remaining syscalls
+# this script drops the syscalls made by any lttng processes, and counts the remaining syscalls (by default it reads trace.txt)
 python3 lttng_syscall_stats.py example.trace.txt
 ```
+
+### NOTE
 
 To list all kernel syscalls that are being traced, you can run:
 

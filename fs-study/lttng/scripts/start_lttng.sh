@@ -1,19 +1,28 @@
 #!/usr/bin/env sh
 
+# session name
 SESSION="all-syscalls-session"
 
-# configur rotation
+# output directory
+OUTPUT="/tmp"
+
+# configuration rotation
 ENABLE_ROTATION="yes"
 ROTATION_SIZE="200M"
 
 # the following contexts are useful for analyzing syscall stacks, but may add overhead
 ENABLE_STACKS="no"
 
+## load configs from .config.env if it exists
+CFG_FILE="$(pwd)/.config.env"
+if [ -f "${CFG_FILE}" ]; then
+  . "${CFG_FILE}"
+fi
+
 # setup_lttng.sh
 # This script sets up an LTTng tracing session for all system calls,
-# including various context information, and stores the traces in /tmp/lttng-traces-100.
-
-sudo lttng create syscalls-session-"${SESSION}" --output /tmp/lttng-traces-"${SESSION}"
+# including various context information, and stores the traces.
+sudo lttng create syscalls-session-"${SESSION}" --output "${OUTPUT}/lttng-traces-${SESSION}"
 
 # create a channel based on the machine's page size
 sudo lttng enable-channel --kernel channel0 \
