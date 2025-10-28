@@ -8,4 +8,4 @@ then
 fi
 
 # use apache-benchmark to send requests to nginx server
-ab -n 1000 -c 10 http://localhost/
+ab -n 10000 -c 100 http://localhost/
