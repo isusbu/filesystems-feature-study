@@ -9,4 +9,4 @@
       - babeltrace2
     state: present
     update_cache: yes
-  notify: enable lttng # to: roles/lttng/handlers/main.yml
+  notify: enable lttng # roles/lttng/handlers/main.yml

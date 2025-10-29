@@ -1,0 +1,8 @@
+---
+# file: roles/docker/handlers/main.yml
+- name: enable and start Docker service
+  systemd:
+    name: docker
+    enabled: yes
+    state: started
+    daemon_reload: yes
