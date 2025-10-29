@@ -43,3 +43,12 @@
     name: "{{ ansible_user }}"
     groups: docker
     append: yes
+
+- name: Uninstall Docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: absent
+  tags: cleanup

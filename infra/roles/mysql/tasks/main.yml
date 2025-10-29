@@ -17,3 +17,12 @@
     mode: '0700'
   notify:
     - restart mysql
+
+- name: Uninstall MySQL server
+  apt:
+    name: mysql-server
+    state: absent
+  when: mysql_installation == false
+  notify:
+    - stop mysql
+  tags: cleanup

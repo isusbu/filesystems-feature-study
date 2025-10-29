@@ -14,3 +14,13 @@
   ansible.builtin.systemd:
     name: nginx
     enabled: yes
+
+- name: stop Nginx
+  ansible.builtin.systemd:
+    name: nginx
+    state: stopped
+
+- name: disable Nginx
+  ansible.builtin.systemd:
+    name: nginx
+    enabled: no

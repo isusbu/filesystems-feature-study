@@ -10,3 +10,13 @@
     state: present
     update_cache: yes
   notify: enable lttng # roles/lttng/handlers/main.yml
+
+- name: Uninstall LTTng packages
+  apt:
+    name:
+      - lttng-tools
+      - lttng-modules-dkms
+      - liblttng-ust-dev
+      - babeltrace2
+    state: absent
+  tags: cleanup

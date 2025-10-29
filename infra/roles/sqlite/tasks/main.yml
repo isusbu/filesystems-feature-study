@@ -17,3 +17,11 @@
 
 - name: Initialize SQLite database
   command: sqlite3 /var/lib/sqlite/mydatabase.db < /etc/sqlite3/sqlite_init.sql
+
+- name: Uninstall SQLite package
+  apt:
+    name: 
+      - sqlite3
+      - sqlite3-doc
+    state: absent
+  tags: cleanup

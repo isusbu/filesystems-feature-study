@@ -22,6 +22,13 @@ NOTE: To setup database hosts, you have to pass `sqlite` or `mysql` as a tag.
 ansible-playbook -i hosts site.yml --tags mysql
 ```
 
+NOTE: To cleanup each playbook, pass the `cleanup` tag.
+
+```bash
+# this will uninstall every package that was installed by this playbook
+ansible-playbook -i hosts site.yml --tags cleanup
+```
+
 ## References
 
 - [Ansible Docs](https://docs.ansible.com/ansible/2.8/user_guide/playbooks_best_practices.html#best-practices)
