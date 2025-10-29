@@ -2,6 +2,9 @@
 # file: playbooks/dbservers.yml
 - name: Configure Database Servers
   hosts: dbservers
+  become: yes
+  vars:
+    atype: "database"
   roles:
     - common
     - lttng

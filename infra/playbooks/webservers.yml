@@ -2,6 +2,9 @@
 # file: playbooks/webservers.yml
 - name: Configure Web Servers
   hosts: webservers
+  become: yes
+  vars:
+    atype: "web"
   roles:
     - common
     - lttng

@@ -2,6 +2,9 @@
 # file: playbooks/contservers.yml
 - name: Configure Container Servers
   hosts: contservers
+  become: yes
+  vars:
+    stype: "container_server"
   roles:
     - common
     - lttng

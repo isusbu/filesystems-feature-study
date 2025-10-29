@@ -1,0 +1,22 @@
+---
+# file: roles/common/tasks/main.yml
+- name: Ensure common packages are installed
+  apt:
+    name:
+      - vim
+      - curl
+      - git
+      - wget
+      - unzip
+      - gzip
+      - tree
+    state: present
+    update_cache: yes
+
+- name: Create tmp_whoisthis file from template
+  ansible.builtin.template:
+    src: templates/tmp_whoisthis.j2
+    dest: /tmp/whoisthis
+    owner: root
+    group: root
+    mode: '0644'

@@ -1,5 +1,8 @@
 # file: hosts
 
+# all servers
+[all:children]
+
 # web servers in all
 [webservers:children]
 
