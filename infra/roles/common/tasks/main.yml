@@ -10,6 +10,7 @@
       - unzip
       - gzip
       - tree
+      - apache2-utils
     state: present
     update_cache: yes
 
