@@ -8,9 +8,11 @@
     state: present
 
 - name: Copy the sqlite initialization script
-  template:
+  ansible.builtin.template:
     src: templates/etc_sqlite3_sqlite.init.sql.j2
     dest: /etc/sqlite3/sqlite_init.sql
+    owner: root
+    group: root
     mode: '0700'
 
 - name: Initialize SQLite database

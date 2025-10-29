@@ -9,14 +9,14 @@
     - start Nginx
 
 - name: Copy Nginx configuration file
-  template:
+  ansible.builtin.template:
     src: templates/etc_nginx_nginx.conf.j2
     dest: /etc/nginx/nginx.conf
   notify:
     - restart Nginx
 
 - name: Copy default site configuration file
-  template:
+  ansible.builtin.template:
     src: templates/etc_nginx_conf.d_default.conf.j2
     dest: /etc/nginx/conf.d/default.conf
   notify:
