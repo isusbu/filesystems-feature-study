@@ -1,0 +1,8 @@
+---
+# file: roles/lttng/handlers/main.yml
+- name: enable lttng
+  ansible.builtin.systemd:
+    name: lttng-sessiond
+    enabled: yes
+    state: started
+    daemon_reload: yes
