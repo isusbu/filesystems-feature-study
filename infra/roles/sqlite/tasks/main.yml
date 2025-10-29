@@ -1,0 +1,17 @@
+---
+# file: roles/sqlite/tasks/main.yml
+- name: Install SQLite package
+  apt:
+    name: 
+      - sqlite3
+      - sqlite3-doc
+    state: present
+
+- name: Copy the sqlite initialization script
+  template:
+    src: templates/etc_sqlite3_sqlite.init.sql.j2
+    dest: /etc/sqlite3/sqlite_init.sql
+    mode: '0700'
+
+- name: Initialize SQLite database
+  command: sqlite3 /var/lib/sqlite/mydatabase.db < /etc/sqlite3/sqlite_init.sql
