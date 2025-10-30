@@ -25,4 +25,6 @@
   when: mysql_installation == false
   notify:
     - stop mysql
-  tags: cleanup
+  tags:
+    - cleanup
+    - mysql

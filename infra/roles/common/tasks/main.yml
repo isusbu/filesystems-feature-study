@@ -21,17 +21,3 @@
     owner: root
     group: root
     mode: '0644'
-
-- name: Clean up installed packages
-  apt:
-    name:
-      - vim
-      - curl
-      - git
-      - wget
-      - unzip
-      - gzip
-      - tree
-      - apache2-utils
-    state: absent
-  tags: cleanup

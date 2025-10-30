@@ -51,4 +51,6 @@
       - docker-ce-cli
       - containerd.io
     state: absent
-  tags: cleanup
+  tags: 
+    - cleanup
+    - docker

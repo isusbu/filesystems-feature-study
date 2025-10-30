@@ -19,4 +19,6 @@
       - liblttng-ust-dev
       - babeltrace2
     state: absent
-  tags: cleanup
+  tags:
+    - cleanup
+    - lttng

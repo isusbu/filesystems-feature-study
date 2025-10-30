@@ -14,7 +14,7 @@ Adjust your hosts in the `hosts` file then pass it to the main playbook.
 
 ```bash
 # this runs the main playbook, you can run individuals from playbooks directory
-ansible-playbook -i hosts site.yml
+ansible-playbook -i hosts site.yml -K # ask-become-pass is needed for root access to run sudo commands
 ```
 
 To test your hosts you can also run:

@@ -26,8 +26,9 @@
   apt:
     name: nginx
     state: absent
-  when: nginx_installation == false
   notify:
     - stop Nginx
     - disable Nginx
-  tags: cleanup
+  tags:
+    - cleanup
+    - nginx

@@ -24,4 +24,6 @@
       - sqlite3
       - sqlite3-doc
     state: absent
-  tags: cleanup
+  tags:
+    - cleanup
+    - sqlite
