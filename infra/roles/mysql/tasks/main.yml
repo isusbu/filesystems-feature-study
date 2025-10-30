@@ -26,5 +26,9 @@
   notify:
     - stop mysql
   tags:
+    - never # never run this by default
     - cleanup
     - mysql
+  when:
+    - "'cleanup' in ansible_run_tags"
+    - "'mysql' in ansible_run_tags"

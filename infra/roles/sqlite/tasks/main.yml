@@ -25,5 +25,9 @@
       - sqlite3-doc
     state: absent
   tags:
+    - never # never run this by default
     - cleanup
     - sqlite
+  when:
+    - "'cleanup' in ansible_run_tags"
+    - "'sqlite' in ansible_run_tags"

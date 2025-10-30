@@ -51,6 +51,10 @@
       - docker-ce-cli
       - containerd.io
     state: absent
-  tags: 
+  tags:
+    - never # never run this by default 
     - cleanup
     - docker
+  when:
+    - "'cleanup' in ansible_run_tags"
+    - "'docker' in ansible_run_tags"

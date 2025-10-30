@@ -30,5 +30,9 @@
     - stop Nginx
     - disable Nginx
   tags:
+    - never # never run this by default
     - cleanup
     - nginx
+  when:
+    - "'cleanup' in ansible_run_tags"
+    - "'nginx' in ansible_run_tags"
