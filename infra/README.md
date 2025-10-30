@@ -1,6 +1,14 @@
 # Infrastructure Setup
 
-Use this `ansible-playbook` to install required services and tools for `fs-study` project. The playbook allows you to install `NginX`, `SQLite`, and `MySQL` on a host. It also allows installing `LTTng` for tracing and `docker` for containers.
+Use this `ansible-playbook` to install required services and tools for `fs-study` project.
+
+Playbook installs:
+
+- `NginX`
+- `SQLite`
+- `MySQL`
+- `Docker`
+- `LTTng`
 
 Adjust your hosts in the `hosts` file then pass it to the main playbook.
 
