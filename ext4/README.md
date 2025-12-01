@@ -21,3 +21,10 @@ rm -rf /mnt/ext4test
 
 rm ext4_test.img
 ```
+
+## Challenges
+
+1. LTTng ABI conflict with some of the tracepoints. Specifically, tracepoints that use complex data types which are not supported by LTTng.
+2. Running processes in different groups to minimize noise in the logs.
+3. Creating different workloads to trigger Ext4 features (e.g., journaling, failure recovery, etc.).
+4. Mapping kernel stack addresses to functions or symbols.
