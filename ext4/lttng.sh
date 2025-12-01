@@ -18,15 +18,15 @@ SESSION_NAME="ext4-session-${SUFFIX}"
 OUTPUT_DIR="/tmp/lttng-traces/${SESSION_NAME}"
 
 # Create session
-sudo lttng create "$SESSION_NAME" -o "$OUTPUT_DIR"
-sudo lttng enable-channel --kernel channel0 \
+lttng create "$SESSION_NAME" -o "$OUTPUT_DIR"
+lttng enable-channel --kernel channel0 \
   --subbuf-size=8M \
   --num-subbuf=16
 
-sudo lttng add-context --kernel --type procname
-sudo lttng add-context --kernel --type pid
-sudo lttng add-context --kernel --type tid
-sudo lttng add-context --kernel --type callstack-kernel
+lttng add-context --kernel --type procname
+lttng add-context --kernel --type pid
+lttng add-context --kernel --type tid
+lttng add-context --kernel --type callstack-kernel
 
 # File with tracepoints
 TP_FILE="tracepoints.txt"
@@ -44,7 +44,7 @@ while IFS= read -r tp; do
     esac
 
     echo "Enabling kernel probe for: $tp"
-    sudo lttng enable-event --channel=channel0 --kernel --probe="$tp" "$tp"
+    lttng enable-event --channel=channel0 --kernel --probe="$tp" "$tp"
 done < "$TP_FILE"
 
 echo "session built."
