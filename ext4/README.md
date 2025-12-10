@@ -22,6 +22,10 @@ rm -rf /mnt/ext4test
 rm ext4_test.img
 ```
 
+```bash
+cat /proc/kallsyms | awk '$2 ~ /^[Tt]$/ && $3 ~ /^ext4_/ { if(!seen[$3]++) print $1, $3 }'
+```
+
 ## Challenges
 
 1. LTTng ABI conflict with some of the tracepoints. Specifically, tracepoints that use complex data types which are not supported by LTTng.
