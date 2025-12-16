@@ -73,3 +73,5 @@ sudo -g fio_grp ./fio.sh
     - By using the group id, we can label and filter logs
 3. Creating different workloads to trigger Ext4 features (e.g., journaling, failure recovery, etc.).
 4. Mapping kernel stack addresses to functions or symbols.
+5. Large volume of tracing results to parse (11GB right now).
+6. Tracer discarded 700,000 events.
