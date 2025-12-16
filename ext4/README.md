@@ -68,6 +68,7 @@ sudo -g fio_grp ./fio.sh
 
 1. LTTng ABI conflict with some of the tracepoints. Specifically, tracepoints that use complex data types which are not supported by LTTng.
     - Fixed by using kernel probes
+    - Targeting 883 probes of Ext4 (only 10 failed to hook, 1.2% missing rate)
 2. Running processes in different groups to minimize noise in the logs.
     - By using the group id, we can label and filter logs
 3. Creating different workloads to trigger Ext4 features (e.g., journaling, failure recovery, etc.).

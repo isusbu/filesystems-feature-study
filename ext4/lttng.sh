@@ -17,6 +17,7 @@ fi
 SUFFIX=$1
 SESSION_NAME="ext4-session-${SUFFIX}"
 OUTPUT_DIR="/mnt/tracings/${SESSION_NAME}"
+GROUP_ID=1001
 
 # read kernel probes for tracing from a target file
 KPROBE_FILE_PATH="kprobes.txt"
@@ -55,6 +56,8 @@ while IFS= read -r tp; do
         echo "$tp" >> hooked.txt
     fi
 done < "$KPROBE_FILE_PATH"
+
+lttng track --kernel --session="$SESSION_NAME" --gid="$GROUP_ID"
 
 echo "session built."
 echo "probes for tracing: see hooked.txt"
