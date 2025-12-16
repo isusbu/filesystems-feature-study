@@ -27,8 +27,8 @@ rm ext4_test.img
 Setup a target disk for tracing logs.
 
 ```bash
-# make a 2GB empty image file
-dd if=/dev/zero of=tracings.img bs=1M count=2048
+# make a 10GB empty image file
+dd if=/dev/zero of=tracings.img bs=1M count=10240
 
 # format it as XFS
 mkfs.xfs tracings.img
