@@ -22,6 +22,8 @@ trace.txt
 trace.txt*
 plots/
 logs/
+logs.txt
+filter.txt
 ext4-*
 
 # Specific files
