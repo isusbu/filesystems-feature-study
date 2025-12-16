@@ -24,6 +24,30 @@ rm -rf /mnt/ext4test
 rm ext4_test.img
 ```
 
+Setup a target disk for tracing logs.
+
+```bash
+# make a 2GB empty image file
+dd if=/dev/zero of=tracings.img bs=1M count=2048
+
+# format it as XFS
+mkfs.xfs tracings.img
+
+# make a mount point
+mkdir /mnt/tracings
+
+# mount it using a loop device
+sudo mount -o loop tracings.img /mnt/tracings
+```
+
+```bash
+cd ~
+sudo umount /mnt/tracings
+rm -rf /mnt/tracings
+
+rm tracings.img
+```
+
 Run this command to find the Ext4 kernel probes. 
 
 

@@ -16,7 +16,7 @@ fi
 # tracing parameters
 SUFFIX=$1
 SESSION_NAME="ext4-session-${SUFFIX}"
-OUTPUT_DIR="/tmp/lttng-traces/${SESSION_NAME}"
+OUTPUT_DIR="/mnt/tracings/${SESSION_NAME}"
 
 # read kernel probes for tracing from a target file
 KPROBE_FILE_PATH="kprobes.txt"
