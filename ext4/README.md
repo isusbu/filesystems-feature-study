@@ -50,9 +50,18 @@ rm tracings.img
 
 Run this command to find the Ext4 kernel probes. 
 
-
 ```bash
 cat /proc/kallsyms | awk '$2 ~ /^[Tt]$/ && $3 ~ /^ext4_/ { if(!seen[$3]++) print $3 }' > kprobes.txt
+```
+
+Create a group and replace the group id inside lttng script.
+
+```bash
+sudo groupadd fio_grp
+getent group fio_grp
+# fio_grp:x:1001:
+
+sudo -g fio_grp ./fio.sh
 ```
 
 ## Challenges

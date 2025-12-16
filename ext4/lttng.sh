@@ -46,7 +46,7 @@ while IFS= read -r tp; do
     esac
 
     echo "Enabling kernel probe for: $tp"
-    lttng enable-event --channel=channel0 --kernel --probe="$tp" "$tp"
+    lttng enable-event --channel=channel0 --kernel --probe="$tp" "$tp" --filter '$ctx.gid == "1001"'
     
     STATUS=$?
     if [ "$STATUS" -ne 0 ]; then
