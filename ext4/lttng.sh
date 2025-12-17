@@ -18,6 +18,7 @@ SUFFIX=$1
 SESSION_NAME="ext4-session-${SUFFIX}"
 OUTPUT_DIR="/mnt/tracings/${SESSION_NAME}"
 GROUP_ID=1001
+ENABLE_KSTACK=0 # 0 disable, 1 enable
 
 # read kernel probes for tracing from a target file
 KPROBE_FILE_PATH="kprobes.txt"
@@ -37,7 +38,11 @@ lttng enable-channel --kernel channel0 \
 # context needed for tracing
 lttng add-context --kernel --type procname
 lttng add-context --kernel --type gid
-lttng add-context --kernel --type callstack-kernel
+
+if [ "$ENABLE_KSTACK" -ne 0 ]; then
+    # enable callstack tracing on command
+    lttng add-context --kernel --type callstack-kernel
+fi
 
 # read probes line-by-line
 while IFS= read -r tp; do
