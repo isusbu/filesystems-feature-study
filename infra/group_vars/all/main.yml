@@ -1,4 +1,0 @@
----
-# file: group_vars/all.yml
-playbook_name: "All"
-playbook_version: "v0.0.0"

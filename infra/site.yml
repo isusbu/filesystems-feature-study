@@ -1,5 +1,0 @@
----
-# file: site.yml
-- import_playbook: playbooks/contservers.yml
-- import_playbook: playbooks/dbservers.yml
-- import_playbook: playbooks/webservers.yml

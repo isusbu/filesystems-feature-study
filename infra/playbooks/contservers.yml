@@ -1,9 +1,0 @@
----
-# file: playbooks/contservers.yml
-- name: Configure Container Servers
-  hosts: contservers
-  become: yes
-  roles:
-    - common
-    - lttng
-    - docker

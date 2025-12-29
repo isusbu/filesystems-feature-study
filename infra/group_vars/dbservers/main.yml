@@ -1,5 +1,0 @@
----
-# file: group_vars/dbservers.yml
-playbook_name: "Database Servers"
-playbook_version: "v0.0.0"
-server_type: "database"
