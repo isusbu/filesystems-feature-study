@@ -1,3 +1,4 @@
+#STATUS 1
 D 0 0 ./share
 C 0 0 ./share/file1 0
 W 0 0 ./share/file1 0 4096
