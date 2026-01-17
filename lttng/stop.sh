@@ -17,4 +17,4 @@ fi
 SUFFIX=$1
 SESSION_NAME="ext4-session-${SUFFIX}"
 
-lttng stop --session=$SESSION_NAME
+lttng stop $SESSION_NAME
