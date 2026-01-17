@@ -1,6 +1,8 @@
 # Ext4
 
-Setup a target disk for FIO test.
+## Drivers
+
+Setup a target disk for workloads test.
 
 ```bash
 # make a 2GB empty image file
@@ -48,20 +50,25 @@ rm -rf /mnt/tracings
 rm tracings.img
 ```
 
+## Kprobes
+
 Run this command to find the Ext4 kernel probes. 
 
 ```bash
 cat /proc/kallsyms | awk '$2 ~ /^[Tt]$/ && $3 ~ /^ext4_/ { if(!seen[$3]++) print $3 }' > kprobes.txt
 ```
 
+## Group
+
 Create a group and replace the group id inside lttng script.
 
 ```bash
-sudo groupadd fio_grp
-getent group fio_grp
-# fio_grp:x:1001:
+sudo groupadd ext4_grp
+getent group ext4_grp
+# ext4_grp:x:1002:
 
-sudo -g fio_grp ./fio.sh
+# test
+sudo -g ext4_grp ls
 ```
 
 ## Challenges
