@@ -1,9 +1,0 @@
-NT_STATUS_OK
-D 0 0 ./share
-C 0 0 ./share/file1 0
-W 0 0 ./share/file1 0 4096
-X 0 0 ./share/file1
-S 0 0
-R 0 0 ./share/file1 0 4096
-X 0 0 ./share/file1
-D 0 0 ./share
