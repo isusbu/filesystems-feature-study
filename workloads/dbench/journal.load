@@ -1,0 +1,6 @@
+D 0 0 ./journal
+C 0 0 ./journal/f 0
+W 0 0 ./journal/f 0 8192
+F 0 0 ./journal/f
+X 0 0 ./journal/f
+D 0 0 ./journal
