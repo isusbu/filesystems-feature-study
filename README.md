@@ -1,9 +1,10 @@
-# ISU/SBU
+# File systems Feature Study
 
-All codes, scripts, and config files for SBU/ISU projects.
+Workloads:
 
-List of projects:
+* fio
+* dbench
 
-- Using LLMs for software debloating (aka LLM study).
-- File systems feature study.
-- Software debloating (coming soon ...)
+File systems:
+
+* Ext4
