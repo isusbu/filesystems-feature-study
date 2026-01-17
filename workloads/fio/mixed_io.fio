@@ -1,0 +1,8 @@
+[mixed_io]
+rw=randrw
+rwmixread=70
+size=100M
+bs=4k
+direct=1
+filename=mixed_test_file
+name=mixed_io

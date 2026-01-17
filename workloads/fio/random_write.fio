@@ -1,0 +1,7 @@
+[rand_write]
+rw=randwrite
+size=100M
+bs=4k
+direct=1
+filename=rand_test_file
+name=random_write

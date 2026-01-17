@@ -1,0 +1,7 @@
+[seq_write]
+rw=write
+size=100M
+bs=4k
+direct=1
+filename=seq_test_file
+name=sequential_write

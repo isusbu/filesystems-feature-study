@@ -1,0 +1,7 @@
+[fallocate_test]
+rw=write
+size=200M
+bs=64k
+fallocate=native
+filename=falloc_test_file
+name=fallocate_test

@@ -1,0 +1,8 @@
+[sync_intensive]
+rw=write
+size=50M
+bs=4k
+direct=0
+sync=1
+filename=sync_test_file
+name=sync_intensive

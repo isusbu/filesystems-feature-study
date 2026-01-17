@@ -1,0 +1,7 @@
+[zero_write]
+rw=write
+size=100M
+bs=64k
+zero_buffers=1
+filename=zero_test_file
+name=zero_write

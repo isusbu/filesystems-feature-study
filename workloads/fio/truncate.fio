@@ -1,0 +1,7 @@
+[truncate_test]
+rw=write
+size=100M
+bs=4k
+file_append=1
+filename=truncate_test_file
+name=truncate_test
