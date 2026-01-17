@@ -3,5 +3,6 @@ rw=write
 size=200M
 bs=64k
 fallocate=native
+directory=/mnt/ext4test
 filename=falloc_test_file
 name=fallocate_test

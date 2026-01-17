@@ -1,5 +1,5 @@
 # FIO
 
 ```sh
-sudo -g fio_grp fio "<config>.fio"
+sudo -g ext4_grp fio "<config>.fio"
 ```

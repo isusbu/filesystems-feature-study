@@ -3,5 +3,6 @@ rw=write
 size=100M
 bs=4k
 file_append=1
+directory=/mnt/ext4test
 filename=truncate_test_file
 name=truncate_test

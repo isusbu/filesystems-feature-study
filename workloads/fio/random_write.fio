@@ -3,5 +3,6 @@ rw=randwrite
 size=100M
 bs=4k
 direct=1
+directory=/mnt/ext4test
 filename=rand_test_file
 name=random_write

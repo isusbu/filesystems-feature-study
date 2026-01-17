@@ -3,5 +3,6 @@ rw=write
 size=100M
 bs=4k
 direct=1
+directory=/mnt/ext4test
 filename=seq_test_file
 name=sequential_write

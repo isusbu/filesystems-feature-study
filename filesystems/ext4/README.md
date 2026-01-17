@@ -2,7 +2,7 @@
 
 ## Drivers
 
-Setup a target disk for workloads test.
+Setup a target disk for workloads test (Ext4).
 
 ```bash
 # make a 2GB empty image file
@@ -26,7 +26,7 @@ rm -rf /mnt/ext4test
 rm ext4_test.img
 ```
 
-Setup a target disk for tracing logs.
+Setup a target disk for tracing logs (XFS).
 
 ```bash
 # make a 10GB empty image file

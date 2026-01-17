@@ -4,5 +4,6 @@ size=50M
 bs=4k
 direct=0
 fsync=1
+directory=/mnt/ext4test
 filename=fsync_test_file
 name=fsync_heavy
