@@ -2,7 +2,7 @@ import os
 import sys
 import matplotlib.pyplot as plt
 
-TOP_N = 20
+TOP_N = 100
 OUTDIR = "plots"
 
 
@@ -31,11 +31,11 @@ def plot_function_counts(filename, data):
         labels.append("Others")
         values.append(sum(v for _, v in rest))
 
-    plt.figure(figsize=(14, 6))
+    plt.figure(figsize=(16, 6))
     plt.bar(labels, values)
     plt.xticks(rotation=90)
     plt.ylabel("Count")
-    plt.title(f"Function hitmap – {os.path.basename(filename)}")
+    plt.title(f"Function hitmap – {os.path.basename(filename).replace(".count", "").replace("ext4-session-", "")} (Top {TOP_N} calls)")
     plt.tight_layout()
 
     out = os.path.join(OUTDIR, f"{os.path.basename(filename)}_hitmap.png")
@@ -56,8 +56,8 @@ def plot_non_zero_percentages(results):
 
     plt.figure(figsize=(10, 5))
     plt.bar(names, values)
-    plt.ylabel("Non-zero percentage (%)")
-    plt.title("Non-zero ext4 function coverage per workload")
+    plt.ylabel("coverage percentage (%)")
+    plt.title("Ext4 file system function coverage per workload")
     plt.xticks(rotation=45, ha="right")
     plt.ylim(0, 100)
     plt.tight_layout()
@@ -75,7 +75,7 @@ def main(files):
     for file in files:
         data = read_file(file)
         plot_function_counts(file, data)
-        non_zero_results[os.path.basename(file)] = non_zero_percentage(data)
+        non_zero_results[os.path.basename(file).replace(".count", "").replace("ext4-session-", "")] = non_zero_percentage(data)
 
     plot_non_zero_percentages(non_zero_results)
 

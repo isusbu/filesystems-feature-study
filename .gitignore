@@ -24,7 +24,6 @@ plots/
 logs/
 *logs.txt
 *filter.txt
-ext4-*
 *hits.txt
 
 # Specific files

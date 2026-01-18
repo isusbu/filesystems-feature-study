@@ -18,3 +18,7 @@ ext4_get_group_desc: 1
 ext4_mark_iloc_dirty: 1
 ext4_file_write_iter: 1
 ```
+
+```sh
+python hitmaps.py ext4-tracings-counts/*
+```
