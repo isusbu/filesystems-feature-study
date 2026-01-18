@@ -34,3 +34,6 @@ infra/production.ini
 infra/*.log
 infra/.vault_pass.txt
 vault.yml
+
+# Go executed files
+main
