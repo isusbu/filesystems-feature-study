@@ -35,6 +35,7 @@ infra/*.log
 infra/.vault_pass.txt
 vault.yml
 mock.txt
+mock.txt.count
 
 # Go executed files
 main

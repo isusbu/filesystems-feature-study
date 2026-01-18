@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/isusbu/filesystems-feature-study/logparser/internal"
@@ -14,6 +15,7 @@ import (
 func main() {
 	// define the program flags
 	var (
+		initFilePathFlag = flag.String("init", "", "set of keys to import before analysis")
 		filePathFlag     = flag.String("file", "log.txt", "log file path")
 		groupIdFlag      = flag.Int("gid", 1002, "group id to filter logs")
 		workersCountFlag = flag.Int("workers", 5, "number of log parser workers")
@@ -64,7 +66,7 @@ func main() {
 	}
 
 	// sum all counts by workers
-	counts := make(map[string]int)
+	counts := createCountsMap(*initFilePathFlag)
 	for _, worker := range workers {
 		for k, v := range worker.Result() {
 			if _, ok := counts[k]; !ok {
@@ -86,6 +88,27 @@ func main() {
 	for k, v := range counts {
 		fmt.Fprintf(ofd, "%s: %d\n", k, v)
 	}
+}
+
+// create counts map, if input file is given load the set.
+func createCountsMap(path string) map[string]int {
+	counts := make(map[string]int)
+
+	fd, err := os.Open(path)
+	if err == nil {
+		// create a scanner
+		scanner := bufio.NewScanner(fd)
+		for scanner.Scan() {
+			line := scanner.Text()
+			line = strings.Trim(line, " ")
+
+			counts[line] = 0
+		}
+	}
+
+	fd.Close()
+
+	return counts
 }
 
 // graceful shutdown by stopping the go-routines.
