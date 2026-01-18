@@ -14,6 +14,7 @@ func main() {
 	// define the program flags
 	var (
 		filePathFlag     = flag.String("file", "log.txt", "log file path")
+		groupIdFlag      = flag.Int("gid", 1002, "group id to filter logs")
 		workersCountFlag = flag.Int("workers", 5, "number of log parser workers")
 	)
 
@@ -26,7 +27,7 @@ func main() {
 
 	for i := range *workersCountFlag {
 		workers[i] = internal.NewWorker(inputChannel)
-		go workers[i].Start()
+		go workers[i].Start(*groupIdFlag)
 
 		log.Printf("start worker %d\n", i)
 	}

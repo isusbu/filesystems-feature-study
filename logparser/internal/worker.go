@@ -36,7 +36,7 @@ func NewWorker(input chan string) *Worker {
 }
 
 // Start worker main loop.
-func (w *Worker) Start() {
+func (w *Worker) Start(gid int) {
 	defer w.wg.Done()
 	w.wg.Add(1)
 
@@ -48,9 +48,16 @@ func (w *Worker) Start() {
 			// must pass regrex
 			match := re.FindStringSubmatch(data)
 			if len(match) == 4 {
-				// must be group 1002 and not lttng process
-				gid, _ := strconv.Atoi(match[3])
-				if !strings.Contains(match[2], "lttng") && gid == 1002 {
+				procname := strings.ToLower(match[2])
+
+				// skip all lttng procs
+				if strings.Contains(procname, "lttng") {
+					continue
+				}
+
+				// group id must match
+				tgid, _ := strconv.Atoi(match[3])
+				if gid == tgid {
 					w.memory.Inc(match[1])
 				}
 			}
