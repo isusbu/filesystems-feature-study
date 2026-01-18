@@ -1,56 +1,88 @@
-import re
-from collections import Counter
-
+import os
+import sys
 import matplotlib.pyplot as plt
 
-# read ext4 kernel functions from kprobes.txt
-with open("ext4/kprobes.txt") as f:
-    ext4_funcs = set(line.strip() for line in f if line.strip())
+TOP_N = 20
+OUTDIR = "plots"
 
-# parse logs and build hit maps
-event_hits = Counter()
-address_hits = Counter()
 
-with open("filter.txt") as f:
-    for line in f:
-        # find ext4 function event
-        m = re.match(r".*?\s+(ext4_\w+):", line)
-        if m:
-            func = m.group(1)
-            if func in ext4_funcs:
-                event_hits[func] += 1
-                # find all callstack addresses
-                callstack = re.findall(r"0x[0-9A-Fa-f]+", line)
-                for addr in callstack:
-                    address_hits[addr] += 1
+def read_file(path):
+    data = {}
+    with open(path, "r") as f:
+        for line in f:
+            line = line.strip()
+            if not line or ":" not in line:
+                continue
+            k, v = line.split(":", 1)
+            data[k.strip()] = int(v.strip())
+    return data
 
-# store the hits inside a file
-with open("hits.txt", "w") as f:
-    for func in event_hits:
-        f.write(f"{func}\n")
 
-# plot top N function events
-top_funcs = event_hits.most_common(100)
-func_names = [item[0] for item in top_funcs]
-func_counts = [item[1] for item in top_funcs]
+def plot_function_counts(filename, data):
+    sorted_items = sorted(data.items(), key=lambda x: x[1], reverse=True)
 
-plt.figure(figsize=(10, 5))
-plt.barh(func_names, func_counts)
-plt.gca().invert_yaxis()
-plt.title("ext4 Function Event Hit Map")
-plt.xlabel("Hit Count")
-plt.tight_layout()
-plt.show()
+    top = sorted_items[:TOP_N]
+    rest = sorted_items[TOP_N:]
 
-# plot top N addresses in callstack
-top_addrs = address_hits.most_common(100)
-addr_names = [item[0] for item in top_addrs]
-addr_counts = [item[1] for item in top_addrs]
+    labels = [k for k, _ in top]
+    values = [v for _, v in top]
 
-plt.figure(figsize=(10, 5))
-plt.barh(addr_names, addr_counts)
-plt.gca().invert_yaxis()
-plt.title("Call Stack Kernel Address Hit Map")
-plt.xlabel("Hit Count")
-plt.tight_layout()
-plt.show()
+    if rest:
+        labels.append("Others")
+        values.append(sum(v for _, v in rest))
+
+    plt.figure(figsize=(14, 6))
+    plt.bar(labels, values)
+    plt.xticks(rotation=90)
+    plt.ylabel("Count")
+    plt.title(f"Function hitmap – {os.path.basename(filename)}")
+    plt.tight_layout()
+
+    out = os.path.join(OUTDIR, f"{os.path.basename(filename)}_hitmap.png")
+    plt.savefig(out, dpi=200)
+    plt.close()
+
+
+def non_zero_percentage(data):
+    if not data:
+        return 0.0
+    non_zero = sum(1 for v in data.values() if v != 0)
+    return 100.0 * non_zero / len(data)
+
+
+def plot_non_zero_percentages(results):
+    names = list(results.keys())
+    values = list(results.values())
+
+    plt.figure(figsize=(10, 5))
+    plt.bar(names, values)
+    plt.ylabel("Non-zero percentage (%)")
+    plt.title("Non-zero ext4 function coverage per workload")
+    plt.xticks(rotation=45, ha="right")
+    plt.ylim(0, 100)
+    plt.tight_layout()
+
+    out = os.path.join(OUTDIR, "non_zero_summary.png")
+    plt.savefig(out, dpi=200)
+    plt.close()
+
+
+def main(files):
+    os.makedirs(OUTDIR, exist_ok=True)
+
+    non_zero_results = {}
+
+    for file in files:
+        data = read_file(file)
+        plot_function_counts(file, data)
+        non_zero_results[os.path.basename(file)] = non_zero_percentage(data)
+
+    plot_non_zero_percentages(non_zero_results)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python hitmaps.py file1.txt file2.txt ...")
+        sys.exit(1)
+
+    main(sys.argv[1:])
