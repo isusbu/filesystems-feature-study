@@ -5,6 +5,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"time"
 
 	"github.com/isusbu/filesystems-feature-study/logparser/internal"
 )
@@ -48,6 +49,16 @@ func main() {
 	// check for scanner errors
 	if err := scanner.Err(); err != nil {
 		panic(err)
+	}
+
+	// wait until the input channel is empty
+	log.Println("input channel check.")
+	for {
+		if len(inputChannel) == 0 {
+			break
+		}
+
+		time.Sleep(1 * time.Second)
 	}
 }
 
