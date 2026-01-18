@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -16,13 +15,13 @@ type Worker struct {
 }
 
 // NewWorker returns a worker instance.
-func NewWorker(input chan string, term chan int) *Worker {
+func NewWorker(input chan string) *Worker {
 	return &Worker{
 		memory: &MemCache{
 			counts: make(map[string]int),
 		},
 		input: input,
-		term:  term,
+		term:  make(chan int),
 		wg:    &sync.WaitGroup{},
 	}
 }
@@ -36,8 +35,11 @@ func (w *Worker) Start() {
 		select {
 		case <-w.term:
 			return
-		case data := <-w.input:
-			fmt.Println(data)
+		case _ = <-w.input:
+			// TODO: must pass regrex
+			// TODO: must check the proc and group id
+			// TODO: extract the function name
+			// TODO: increase the function count
 		}
 	}
 }
