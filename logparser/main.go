@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -60,6 +61,30 @@ func main() {
 		}
 
 		time.Sleep(1 * time.Second)
+	}
+
+	// sum all counts by workers
+	counts := make(map[string]int)
+	for _, worker := range workers {
+		for k, v := range worker.Result() {
+			if _, ok := counts[k]; !ok {
+				counts[k] = 0
+			}
+
+			counts[k] += v
+		}
+	}
+
+	// write the output into a file
+	ofd, err := os.Create(*filePathFlag + ".count")
+	if err != nil {
+		panic(err)
+	}
+	defer ofd.Close()
+
+	// write the lines
+	for k, v := range counts {
+		fmt.Fprintf(ofd, "%s: %d\n", k, v)
 	}
 }
 

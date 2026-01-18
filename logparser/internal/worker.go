@@ -9,13 +9,13 @@ import (
 
 var (
 	re = regexp.MustCompile(
-		`(\w+):.*procname = "([^"]+)".*gid = (\d+)`,
+		`\s([A-Za-z0-9_]+):\s*\{.*procname\s*=\s*"([^"]+)".*gid\s*=\s*(\d+)`,
 	)
 )
 
 // Worker gets a log line and counts the function call.
 type Worker struct {
-	memory *MemCache
+	memory *memCache
 
 	input chan string
 	term  chan int
@@ -26,7 +26,7 @@ type Worker struct {
 // NewWorker returns a worker instance.
 func NewWorker(input chan string) *Worker {
 	return &Worker{
-		memory: &MemCache{
+		memory: &memCache{
 			counts: make(map[string]int),
 		},
 		input: input,
@@ -58,7 +58,7 @@ func (w *Worker) Start(gid int) {
 				// group id must match
 				tgid, _ := strconv.Atoi(match[3])
 				if gid == tgid {
-					w.memory.Inc(match[1])
+					w.memory.inc(match[1])
 				}
 			}
 		}
@@ -69,4 +69,9 @@ func (w *Worker) Start(gid int) {
 func (w *Worker) Stop() {
 	w.term <- 1
 	w.wg.Wait()
+}
+
+// Result returns the countings of this worker.
+func (w *Worker) Result() map[string]int {
+	return w.memory.counts
 }
