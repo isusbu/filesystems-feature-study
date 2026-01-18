@@ -34,6 +34,7 @@ infra/production.ini
 infra/*.log
 infra/.vault_pass.txt
 vault.yml
+mock.txt
 
 # Go executed files
 main

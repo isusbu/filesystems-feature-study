@@ -1,7 +1,16 @@
 package internal
 
 import (
+	"regexp"
+	"strconv"
+	"strings"
 	"sync"
+)
+
+var (
+	re = regexp.MustCompile(
+		`(\w+):.*procname = "([^"]+)".*gid = (\d+)`,
+	)
 )
 
 // Worker gets a log line and counts the function call.
@@ -35,11 +44,16 @@ func (w *Worker) Start() {
 		select {
 		case <-w.term:
 			return
-		case _ = <-w.input:
-			// TODO: must pass regrex
-			// TODO: must check the proc and group id
-			// TODO: extract the function name
-			// TODO: increase the function count
+		case data := <-w.input:
+			// must pass regrex
+			match := re.FindStringSubmatch(data)
+			if len(match) == 4 {
+				// must be group 1002 and not lttng process
+				gid, _ := strconv.Atoi(match[3])
+				if !strings.Contains(match[2], "lttng") && gid == 1002 {
+					w.memory.Inc(match[1])
+				}
+			}
 		}
 	}
 }
