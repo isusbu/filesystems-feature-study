@@ -1,8 +1,10 @@
 import os
 import sys
-import matplotlib.pyplot as plt
 
-TOP_N = 100
+import matplotlib.pyplot as plt
+import numpy as np
+
+
 OUTDIR = "plots"
 
 
@@ -20,28 +22,54 @@ def read_file(path):
 
 def plot_function_counts(filename, data):
     sorted_items = sorted(data.items(), key=lambda x: x[1], reverse=True)
+    values = [v for _, v in sorted_items]
 
-    top = sorted_items[:TOP_N]
-    rest = sorted_items[TOP_N:]
-
-    labels = [k for k, _ in top]
-    values = [v for _, v in top]
-
-    if rest:
-        labels.append("Others")
-        values.append(sum(v for _, v in rest))
-
-    plt.figure(figsize=(16, 6))
-    plt.bar(labels, values)
-    plt.xticks(rotation=90)
-    plt.ylabel("Count")
-    plt.title(f"Function hitmap – {os.path.basename(filename).replace(".count", "").replace("ext4-session-", "")} (Top {TOP_N} calls)")
+    plt.figure(figsize=(8, 5))
+    plt.hist(values, bins=50, log=True)
+    plt.xlabel("Function call count")
+    plt.ylabel("Number of functions (log scale)")
+    plt.title("Log distribution of function call counts")
     plt.tight_layout()
 
-    out = os.path.join(OUTDIR, f"{os.path.basename(filename)}_hitmap.png")
+    out = os.path.join(OUTDIR, f"{os.path.basename(filename)}_distribution_log.png")
     plt.savefig(out, dpi=200)
     plt.close()
 
+def plot_count_cdf(filename, data):
+    values = np.array(sorted(data.values()))
+    cdf = np.cumsum(values) / np.sum(values)
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(values, cdf)
+    plt.xlabel("Function call count")
+    plt.ylabel("Cumulative fraction of total calls")
+    plt.title("CDF of function call counts")
+    plt.grid(True)
+    plt.tight_layout()
+
+    out = os.path.join(OUTDIR, f"{os.path.basename(filename)}_cdf.png")
+    plt.savefig(out, dpi=200)
+    plt.close()
+
+def plot_count_cdf_all(cdf_data):
+    # cdf_data: dict[name] = list_of_values
+    plt.figure(figsize=(8, 5))
+
+    for name, values in cdf_data.items():
+        values = np.array(sorted(values))
+        cdf = np.cumsum(values) / np.sum(values)
+        plt.plot(values, cdf, label=name)
+
+    plt.xlabel("Function call count")
+    plt.ylabel("Cumulative fraction of total calls")
+    plt.title("CDF of function call counts")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+
+    out = os.path.join(OUTDIR, "all_files_cdf.png")
+    plt.savefig(out, dpi=200)
+    plt.close()
 
 def non_zero_percentage(data):
     if not data:
@@ -71,13 +99,29 @@ def main(files):
     os.makedirs(OUTDIR, exist_ok=True)
 
     non_zero_results = {}
+    cdf_data = {}
 
     for file in files:
         data = read_file(file)
-        plot_function_counts(file, data)
-        non_zero_results[os.path.basename(file).replace(".count", "").replace("ext4-session-", "")] = non_zero_percentage(data)
 
+        # Preserve per-file distribution plots
+        plot_function_counts(file, data)
+
+        # Name used consistently for legends and bar plot
+        name = os.path.basename(file).replace(".count", "").replace("ext4-session-", "")
+
+        # Store raw values for joint CDF plot
+        cdf_data[name] = list(data.values())
+
+        # Collect non-zero coverage percentages
+        non_zero_results[name] = non_zero_percentage(data)
+
+    # New single CDF plot for all workloads
+    plot_count_cdf_all(cdf_data)
+
+    # Existing bar chart summary
     plot_non_zero_percentages(non_zero_results)
+
 
 
 if __name__ == "__main__":
