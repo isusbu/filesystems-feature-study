@@ -8,7 +8,9 @@ To run LTTng tracer you need to have three things:
 2. A group id to run your workloads within specific group.
 3. An LTTng session.
 
-To start a session, run the `lttng/init.sh <NAME>` script. This will export your logs to `/mnt/gpfs/fs-study/ext4-session-<NAME>`.
+To start a session, run the `lttng/init.sh <NAME>` script. This will export your logs to `/mnt/gpfs/fs-study/ext4-session-<NAME>`. Then run `lttng/start.sh <NAME>` to start tracer.
+
+Once your done running your worklaods, execute `lttng/stop.sh <NAME>`. After that run `lttng/cleanup.sh <NAME>` to export your logs in `/mnt/gpfs/fs-study/ext4-session-<NAME>.out`.
 
 ## Tests
 

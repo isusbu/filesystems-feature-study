@@ -24,11 +24,11 @@ fi
 # tracing parameters
 SUFFIX=$1
 SESSION_NAME="ext4-session-${SUFFIX}"
-OUTPUT_DIR="/mnt/tracings/${SESSION_NAME}"
+OUTPUT_DIR="/mnt/gpfs/fs-study/${SESSION_NAME}"
 
 # export the tracing results
-babeltrace2 "/mnt/tracings/${SESSION_NAME}" > "${SESSION_NAME}"
-rm -rf "${OUTPUT_DIR}"
+babeltrace2 "/mnt/gpfs/fs-study/${SESSION_NAME}" > "/mnt/gpfs/fs-study/${SESSION_NAME}.out"
+# rm -rf "${OUTPUT_DIR}"
 
 # destroy the session
 lttng destroy "${SESSION_NAME}"
