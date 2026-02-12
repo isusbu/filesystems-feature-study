@@ -16,7 +16,7 @@ fi
 # tracing parameters
 SUFFIX=$1
 SESSION_NAME="ext4-session-${SUFFIX}"
-OUTPUT_DIR="/mnt/tracings/${SESSION_NAME}"
+OUTPUT_DIR="/mnt/gpfs/fs-study/${SESSION_NAME}" # our GPFS storage
 GROUP_ID=1002
 ENABLE_KSTACK=0 # 0 disable, 1 enable
 
