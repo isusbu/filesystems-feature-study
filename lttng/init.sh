@@ -44,6 +44,9 @@ if [ "$ENABLE_KSTACK" -ne 0 ]; then
     lttng add-context --kernel --type callstack-kernel
 fi
 
+# cleanup
+rm -f failed.txt hooked.txt && touch failed.txt hooked.txt
+
 # read probes line-by-line
 while IFS= read -r tp; do
     # skip empty or commented lines
