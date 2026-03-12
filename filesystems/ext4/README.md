@@ -52,7 +52,7 @@ rm tracings.img
 
 ## Kprobes
 
-Run this command to find the Ext4 kernel probes. 
+Run this command to find the Ext4 kernel probes.
 
 ```bash
 cat /proc/kallsyms | awk '$2 ~ /^[Tt]$/ && $3 ~ /^ext4_/ { if(!seen[$3]++) print $3 }' > kprobes.txt

@@ -8,16 +8,15 @@ Kernel: Linux 6.8.0
 
 Project: XFS Feature Analysis via LTTng & Kprobes
 
-# Phase 1: Environment Preparation
+## Phase 1: Environment Preparation
 
 To ensure high-performance I/O and isolate the filesystem, we utilize local loopback devices.
 
-# Create 2GB disk images for feature testing
+### Create 2GB disk images for feature testing
 
-# make a 2GB empty image file
+```sh
 dd if=/dev/zero of=xfs_test.img bs=1M count=2048
 
-# format it 
 mkfs.ext4 ext4_test.img
 or 
 mkfs.xfs xfs_test.img
@@ -27,10 +26,13 @@ mkdir /mnt/xfstest
 
 # mount it using a loop device
 sudo mount -o loop xfs_test.img /mnt/xfstest
+```
 
-or 
+or:
 
+```sh
 sudo losetup -fP xfs_test.img
+```
 
 Make sure the loop device is in writable location, not on NFS mounted directory, clearup disabled  and is RW. Because xfs expects a root to be able to write to these disks for performing tests
 
@@ -40,7 +42,7 @@ Loopback Device 2(xfs_scratch): Dedicated to destructive feature testing.
 
 Benefit: This isolation ensures that a failure in an XFS feature on the `SCRATCH` device does not crash the entire test runner sitting on the `TEST` device.
 
-# Phase 2 System Configuration for XFS tests
+## Phase 2 System Configuration for XFS tests
 
 We need to configure the local.config so that xfs-tests use our loopback devices instead of actual system disk
 
@@ -56,7 +58,7 @@ SCRATCH_MNT=/mnt/xfsscratch: The mount point for the volatile disk.
 
 (FSTYP=xfs: Explicitly tells the suite to use the XFS driver features.)
 
-# Phase 3: Reading kernel interfaces for this file system (kprobes)
+## Phase 3: Reading kernel interfaces for this file system (kprobes)
 
 Search for all available XFS functions the kernel knows (t is for functions)
 grep "xfs_" /proc/kallsyms | grep "t "
@@ -65,7 +67,7 @@ grep "\[xfs\]" /proc/kallsyms | grep " t " | awk '{print $3}' > available_xfs_pr
 
 Write them to kprobes.txt
 
-# Phase 4: LTTng Monitoring
+## Phase 4: LTTng Monitoring
 
 Mechanism: Dynamic Kprobes for zero-source-code modification.
 
@@ -90,7 +92,7 @@ sudo ./init.sh
 2. Activation - sudo ./start.sh xfs_tests_0
 this allows kernel to start writing function call data to ring buffers
 
-# Phase 4: Workload Execution and Data Collevtion
+## Phase 4: Workload Execution and Data Collevtion
 
 Now, we run the actual test. Since we are using the dual-loopback setup, we need to make sure our loop devices are attached before running the command.
 
@@ -108,7 +110,7 @@ sudo sg ext4_grp -c "sudo ./check xfs/001"
 
 Repeat this for multiple tests
 
-# Phase 5: Post-Processing & Analysis
+## Phase 5: Post-Processing & Analysis
 
 Once the test finishes, we stop the recording and convert the binary data into a format you can use for your report
 
@@ -118,17 +120,19 @@ sudo ./cleanup.sh xfs_tests_0
 
 We can see binary data in /mnt/gpfs/fs-study/ext4-session-xfs_tests_0, and we get .out file of the same which is in readable format after running cleanup.sh
 
-# This saves the list of unique functions that were ACTUALLY used to a file
+### This saves the list of unique functions that were ACTUALLY used to a file
+
 babeltrace2 /mnt/gpfs/fs-study/ext4-session-xfs_tests_0 | awk '{print $4}' | sort -u > utilized_functions.txt
 
-# This gives you the final count for your report
+### This gives you the final count for your report
+
 wc -l utilized_functions.txt
 
-# This shows the function name and how many times it was called, sorted by most used
+### This shows the function name and how many times it was called, sorted by most used
+
 babeltrace2 /mnt/gpfs/fs-study/ext4-session-xfs_tests_0 | awk '{print $4}' | sort | uniq -c | sort -nr > function_frequency.txt
 
-
-# For ext4 testing
+## For ext4 testing
 
 ## Important: NFS / sudo write limitation
 
