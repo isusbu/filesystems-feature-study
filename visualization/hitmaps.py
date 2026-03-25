@@ -1,11 +1,27 @@
 import os
 import sys
+import argparse
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 OUTDIR = "plots"
+
+
+def collect_count_files(directory, recursive=False):
+    matched = []
+    if recursive:
+        for root, _, files in os.walk(directory):
+            for name in files:
+                if name.endswith(".count"):
+                    matched.append(os.path.join(root, name))
+    else:
+        for name in os.listdir(directory):
+            path = os.path.join(directory, name)
+            if os.path.isfile(path) and name.endswith(".count"):
+                matched.append(path)
+    return sorted(matched)
 
 
 def read_file(path):
@@ -86,7 +102,7 @@ def plot_non_zero_percentages(results):
     plt.bar(names, values)
     plt.ylabel("coverage percentage (%)")
     plt.title("Ext4 file system function coverage per workload")
-    plt.xticks(rotation=45, ha="right")
+    plt.xticks(rotation=90, ha="right")
     plt.ylim(0, 100)
     plt.tight_layout()
 
@@ -125,8 +141,41 @@ def main(files):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python hitmaps.py file1.txt file2.txt ...")
+    parser = argparse.ArgumentParser(
+        description="Generate function-count plots from .count files."
+    )
+    parser.add_argument(
+        "files",
+        nargs="*",
+        help="One or more .count files to plot.",
+    )
+    parser.add_argument(
+        "-d",
+        "--dir",
+        dest="directory",
+        help="Directory containing .count files to include.",
+    )
+    parser.add_argument(
+        "-r",
+        "--recursive",
+        action="store_true",
+        help="Recursively scan --dir for .count files.",
+    )
+
+    args = parser.parse_args()
+
+    files = list(args.files)
+    if args.directory:
+        if not os.path.isdir(args.directory):
+            print(f"Error: directory not found: {args.directory}")
+            sys.exit(1)
+        files.extend(collect_count_files(args.directory, recursive=args.recursive))
+
+    # Deduplicate while preserving order.
+    files = list(dict.fromkeys(files))
+
+    if not files:
+        print("Usage: python hitmaps.py [file1.count ...] [--dir DIR] [--recursive]")
         sys.exit(1)
 
-    main(sys.argv[1:])
+    main(files)
