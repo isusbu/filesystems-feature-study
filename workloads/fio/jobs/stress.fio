@@ -7,11 +7,13 @@ group_reporting=1
 thread=1
 numjobs=4
 size=2G
-filesize=256M
+filesize=64k
 unlink=1
 create_on_open=1
 invalidate=1
 bsrange=4k-1M
+openfiles=32
+file_service_type=random
 
 [randwrite_small]
 rw=randwrite
@@ -49,8 +51,6 @@ rw=randwrite
 bs=4k
 nrfiles=10000
 filesize=64k
-openfiles=256
-file_service_type=random
 
 [sync_pressure]
 rw=write
