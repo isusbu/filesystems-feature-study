@@ -1,6 +1,0 @@
-# dbench
-
-```sh
-sudo -g ext4_grp dbench 16 -D /mnt/ext4test -t 10
-sudo -g ext4_grp dbench 32 -D /mnt/ext4test -t 10
-```
