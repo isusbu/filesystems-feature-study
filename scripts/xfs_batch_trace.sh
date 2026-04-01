@@ -56,7 +56,7 @@ for i in $(seq -f "%03g" $START $END); do
     # Define unique session for LTTng
     SESSION="xfsTests_${FSTYP}_${i}"
 
-   echo ">>> initialising session and probes"
+    echo ">>> initialising session and probes"
    
     sudo rm -f "$LTTNG_DIR/hooked.txt" "$LTTNG_DIR/failed.txt"
     sudo touch "$LTTNG_DIR/hooked.txt" "$LTTNG_DIR/failed.txt"
