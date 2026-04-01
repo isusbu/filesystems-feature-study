@@ -43,7 +43,7 @@ iodepth=1
 [append]
 rw=write
 bs=64k
-append=1
+file_append=true
 
 [metadata]
 rw=randwrite
