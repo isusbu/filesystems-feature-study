@@ -14,6 +14,7 @@ else
 fi
 
 # tracing parameters
+FS=ext4
 SUFFIX=$1
 SESSION_NAME="ext4-session-${SUFFIX}"
 OUTPUT_DIR="/mnt/gpfs/fs-study/${SESSION_NAME}" # our GPFS storage
@@ -21,7 +22,7 @@ GROUP_ID=1002
 ENABLE_KSTACK=0 # 0 disable, 1 enable
 
 # read kernel probes for tracing from a target file
-KPROBE_FILE_PATH="kprobes.txt"
+KPROBE_FILE_PATH="filesystems/${FS}/kprobes.txt"
 if [ ! -f "$KPROBE_FILE_PATH" ]; then
     echo "missing file: $KPROBE_FILE_PATH"
     exit 1
