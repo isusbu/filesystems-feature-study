@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # check command existence
 cexists() {
@@ -21,10 +21,20 @@ else
     exit 1
 fi
 
+# Load your metadata if it exists
+if [ -f "/tmp/trace_metadata.env" ]; then
+    source /tmp/trace_metadata.env
+fi
+
+
 # tracing parameters
-FS=ext4
+# if FSTYP is not set, default to ext4
+FS=${FSTYP:-ext4}
+
+# tracing parameters
+#FS=ext4
 SUFFIX=$1
-SESSION_NAME="ext4-session-${SUFFIX}"
+SESSION_NAME="${FS}-session-${SUFFIX}"
 OUTPUT_DIR="/mnt/gpfs/fs-study/${SESSION_NAME}"
 
 # read kernel probes for tracing from a target file

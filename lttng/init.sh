@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # check command existence
 cexists() {
@@ -13,13 +13,21 @@ else
     exit 1
 fi
 
+# Load your metadata if it exists
+if [ -f "/tmp/trace_metadata.env" ]; then
+    source /tmp/trace_metadata.env
+fi
+
+
 # tracing parameters
-FS=ext4
+# if FSTYP is not set, default to ext4
+FS=${FSTYP:-ext4}
 SUFFIX=$1
-SESSION_NAME="ext4-session-${SUFFIX}"
+SESSION_NAME="${FS}-session-${SUFFIX}"
 OUTPUT_DIR="/mnt/gpfs/fs-study/${SESSION_NAME}" # our GPFS storage
 GROUP_ID=1002
 ENABLE_KSTACK=0 # 0 disable, 1 enable
+LTTNG_DIR="/home/satche/filesystems-feature-study/lttng"
 
 # read kernel probes for tracing from a target file
 KPROBE_FILE_PATH="filesystems/${FS}/kprobes.txt"
@@ -46,7 +54,7 @@ if [ "$ENABLE_KSTACK" -ne 0 ]; then
 fi
 
 # cleanup
-rm -f failed.txt hooked.txt && touch failed.txt hooked.txt
+rm -f ${LTTNG_DIR}/failed.txt ${LTTNG_DIR}/hooked.txt && touch ${LTTNG_DIR}/failed.txt ${LTTNG_DIR}/hooked.txt
 
 # read probes line-by-line
 while IFS= read -r tp; do
@@ -60,9 +68,9 @@ while IFS= read -r tp; do
     
     STATUS=$?
     if [ "$STATUS" -ne 0 ]; then
-        echo "$tp" >> failed.txt
+        echo "$tp" >> ${LTTNG_DIR}/failed.txt
     else
-        echo "$tp" >> hooked.txt
+        echo "$tp" >> ${LTTNG_DIR}/hooked.txt
     fi
 done < "$KPROBE_FILE_PATH"
 
