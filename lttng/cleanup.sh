@@ -35,6 +35,7 @@ FS=${FSTYP:-ext4}
 SUFFIX=$1
 SESSION_NAME="${FS}-session-${SUFFIX}"
 OUTPUT_DIR="/mnt/gpfs/fs-study/${SESSION_NAME}"
+USERNAME=satche
 
 # read kernel probes for tracing from a target file
 KPROBE_FILE_PATH="/home/${USERNAME}/filesystems-feature-study/filesystems/${FS}/kprobes.txt"
