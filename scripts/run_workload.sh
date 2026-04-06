@@ -14,7 +14,7 @@ if [ -z "$FSTYP" ]; then
 fi
 FS=${FSTYP}
 
-USERNAME=$(whoami)
+USERNAME=satche
 PROJECT_DIR="/home/${USERNAME}/filesystems-feature-study/"
 XFSTESTS_PATH="/var/tmp/xfstests-dev-run"
 LTTNG_DIR="/home/${USERNAME}/filesystems-feature-study/lttng"

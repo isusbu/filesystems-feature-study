@@ -16,7 +16,7 @@ read -p "End Test #: " END
 
 # Path Setup
 DATE_AND_TIME="$(date +%Y%m%d_%H%M)"
-USERNAME=$(whoami)
+USERNAME=satche
 BATCH_NAME="xfstests_${FSTYP}_${TEST_FOLDER}_${START}_to_${END}_${DATE_AND_TIME}"
 GPFS_BUCKET="/mnt/gpfs/fs-study"
 mkdir -p "$GPFS_BUCKET/${USERNAME}/$BATCH_NAME/logs"
