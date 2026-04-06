@@ -50,7 +50,7 @@ echo ">>> Starting Tracer for Session: $SESSION"
 (cd "$PROJECT_DIR" && sudo ./lttng/init.sh "$SESSION" && sudo ./lttng/start.sh "$SESSION")
 
 # Define the log name using the batch identifier
-TIMESTAMP_LOG="${GPFS_BUCKET}/timestamps_${BATCH_NAME}.log"
+TIMESTAMP_LOG="${OUTPUT_DIR}/timestamps_${BATCH_NAME}.log"
 
 # Workload Loop -  run tests (TODO : consider running 5-10 tests max at a time, as log could be enormous??)
 for i in $(seq -f "%03g" $START $END); do
@@ -60,7 +60,7 @@ for i in $(seq -f "%03g" $START $END); do
     echo "${TEST_NAME},$(date +%H:%M:%S)" >> "${TIMESTAMP_LOG}"
     
     cd "$XFSTESTS_PATH"
-    sudo -E sg ext4_grp -c "./check $TEST_NAME" | tee "$GPFS_BUCKET/testing_logs/${TEST_FOLDER}_${i}.out"
+    sudo -E sg ext4_grp -c "./check $TEST_NAME" | tee "$OUTPUT_DIR/${TEST_FOLDER}_${i}.out"
     
     echo "Sleeping for 15 seconds until next test"
     sleep 15
@@ -70,19 +70,18 @@ done
 echo ">>> Stopping Tracer..."
 (cd "$PROJECT_DIR" && sudo ./lttng/stop.sh "$SESSION" && sudo ./lttng/cleanup.sh "$SESSION")
 
-SOURCE_LOG="/mnt/gpfs/fs-study/${FS}-session-${SESSION}.out"
-LOG_KPROBE_COUNT="/mnt/gpfs/fs-study/${FS}-session-${SESSION}.out.count"
-TARGET_LOG="$GPFS_BUCKET/lttng_all_traces.out"
-TARGET_LOG_KPROBE_COUNT="$GPFS_BUCKET/lttNg_all_traces.out.count"
+SOURCE_LOG="${GPFS_BUCKET}/${FS}-session-${SESSION}.out"
+LOG_KPROBE_COUNT="${GPFS_BUCKET}/${FS}-session-${SESSION}.out.count"
+TARGET_LOG="$OUTPUT_DIR/lttng_all_traces.out"
+TARGET_LOG_KPROBE_COUNT="$OUTPUT_DIR/lttng_all_traces.out.count"
 
 if [ -f "$SOURCE_LOG" ]; then
     sudo mv "$SOURCE_LOG" "$TARGET_LOG"
     sudo mv "$LOG_KPROBE_COUNT" "$TARGET_LOG_KPROBE_COUNT"
-    sudo cp "$LTTNG_DIR/failed.txt" "$GPFS_BUCKET/failed_global.txt"
-    sudo cp "$LTTNG_DIR/hooked.txt" "$GPFS_BUCKET/hooked_global.txt"
-    sudo chown $(whoami):$(id -gn) "$GPFS_BUCKET"
+    sudo cp "$LTTNG_DIR/failed.txt" "$OUTPUT_DIR/failed_global.txt"
+    sudo cp "$LTTNG_DIR/hooked.txt" "$OUTPUT_DIR/hooked_global.txt"
+    sudo chown $(whoami):$(id -gn) "$OUTPUT_DIR"
     echo "Workload complete. Giant lttng log saved to $TARGET_LOG"
 else
    echo "!!! ERROR: Source log not found at $SOURCE_LOG"
 fi
-

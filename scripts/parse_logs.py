@@ -12,7 +12,7 @@ def shift_time(full_time_str, seconds_delta):
         t = datetime.strptime(full_time_str, "%Y-%m-%d %H:%M:%S")
         new_t = t + timedelta(seconds=seconds_delta)
         return new_t.strftime("%Y-%m-%d %H:%M:%S")
-    except Exception as e:
+    except Exception:
         return full_time_str
 
 def get_lower_bound_offset(file_path, target_time_str):
@@ -62,7 +62,7 @@ def extract_chunk(input_path, output_path, start_off, end_off):
     """Surgically extracts the byte range from the giant trace."""
     length = end_off - start_off
     if length <= 0:
-        print(f"    Warning: Range invalid or no data (0 bytes).")
+        print("    Warning: Range invalid or no data (0 bytes).")
         return
 
     with open(input_path, 'rb') as infile, open(output_path, 'wb') as outfile:
@@ -71,7 +71,8 @@ def extract_chunk(input_path, output_path, start_off, end_off):
         while remaining > 0:
             # 10MB chunks for GPFS efficiency
             chunk = infile.read(min(remaining, 10 * 1024 * 1024))
-            if not chunk: break
+            if not chunk: 
+                break
             outfile.write(chunk)
             remaining -= len(chunk)
 
