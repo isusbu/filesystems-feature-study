@@ -3,9 +3,9 @@
 
 # Input about configurations and tests
 while true; do
-    read -p "Enter Filesystem (ext4, xfs, f2fs): " FSTYP
+    read -p "Enter Filesystem (ext4, nfs, f2fs): " FSTYP
     FSTYP=$(echo "$FSTYP" | tr '[:upper:]' '[:lower:]')
-    [[ "$FSTYP" =~ ^(ext4|xfs|f2fs)$ ]] && break || echo "Invalid FS."
+    [[ "$FSTYP" =~ ^(ext4|nfs|f2fs)$ ]] && break || echo "Invalid FS."
 done
 
 read -p "Enter Test Folder [default: $FSTYP]: " TEST_FOLDER
@@ -16,9 +16,10 @@ read -p "End Test #: " END
 
 # Path Setup
 DATE_AND_TIME="$(date +%Y%m%d_%H%M)"
-BATCH_NAME="xfsTests_${FSTYP}_${TEST_FOLDER}_${START}_to_${END}_${DATE_AND_TIME}"
-GPFS_BUCKET="/mnt/gpfs/fs-study/sravya/$BATCH_NAME"
-mkdir -p "$GPFS_BUCKET/testing_logs"
+USERNAME=$(whoami)
+BATCH_NAME="xfstests_${FSTYP}_${TEST_FOLDER}_${START}_to_${END}_${DATE_AND_TIME}"
+GPFS_BUCKET="/mnt/gpfs/fs-study"
+mkdir -p "$GPFS_BUCKET/${USERNAME}/$BATCH_NAME/logs"
 
 # Create local.config in xfstests path
 XFSTESTS_PATH="/var/tmp/xfstests-dev-run"
@@ -38,8 +39,8 @@ START=$START
 END=$END
 BATCH_NAME=$BATCH_NAME
 GPFS_BUCKET=$GPFS_BUCKET
+OUTPUT_DIR="$GPFS_BUCKET/${USERNAME}/$BATCH_NAME/logs"
 SESSION="fs_${FSTYP}_tests_${TEST_FOLDER}_${START}_${END}_${DATE_AND_TIME}"
 EOF
 
 echo "Setup Complete. Metadata saved to /tmp/trace_metadata.env"
-

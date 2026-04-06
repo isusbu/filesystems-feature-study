@@ -14,9 +14,10 @@ if [ -z "$FSTYP" ]; then
 fi
 FS=${FSTYP}
 
-PROJECT_DIR="/home/satche/filesystems-feature-study/"
+USERNAME=$(whoami)
+PROJECT_DIR="/home/${USERNAME}/filesystems-feature-study/"
 XFSTESTS_PATH="/var/tmp/xfstests-dev-run"
-LTTNG_DIR="/home/satche/filesystems-feature-study/lttng"
+LTTNG_DIR="/home/${USERNAME}/filesystems-feature-study/lttng"
 
 #rm -f "$LTTNG_DIR/hooked.txt" "$LTTNG_DIR/failed.txt"
 #touch "$LTTNG_DIR/hooked.txt" "$LTTNG_DIR/failed.txt"
@@ -76,7 +77,7 @@ TARGET_LOG_KPROBE_COUNT="$GPFS_BUCKET/lttNg_all_traces.out.count"
 
 if [ -f "$SOURCE_LOG" ]; then
     sudo mv "$SOURCE_LOG" "$TARGET_LOG"
-    sudo mv "$LOG_KPROBE_COUNT" "TARGET_LOG_KPROBE_COUNT"
+    sudo mv "$LOG_KPROBE_COUNT" "$TARGET_LOG_KPROBE_COUNT"
     sudo cp "$LTTNG_DIR/failed.txt" "$GPFS_BUCKET/failed_global.txt"
     sudo cp "$LTTNG_DIR/hooked.txt" "$GPFS_BUCKET/hooked_global.txt"
     sudo chown $(whoami):$(id -gn) "$GPFS_BUCKET"

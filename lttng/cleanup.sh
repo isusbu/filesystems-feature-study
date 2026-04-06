@@ -26,7 +26,6 @@ if [ -f "/tmp/trace_metadata.env" ]; then
     source /tmp/trace_metadata.env
 fi
 
-
 # tracing parameters
 # if FSTYP is not set, default to ext4
 FS=${FSTYP:-ext4}
@@ -38,7 +37,7 @@ SESSION_NAME="${FS}-session-${SUFFIX}"
 OUTPUT_DIR="/mnt/gpfs/fs-study/${SESSION_NAME}"
 
 # read kernel probes for tracing from a target file
-KPROBE_FILE_PATH="filesystems/${FS}/kprobes.txt"
+KPROBE_FILE_PATH="/home/${USERNAME}/filesystems-feature-study/filesystems/${FS}/kprobes.txt"
 if [ ! -f "$KPROBE_FILE_PATH" ]; then
     echo "missing file: $KPROBE_FILE_PATH"
     exit 1
