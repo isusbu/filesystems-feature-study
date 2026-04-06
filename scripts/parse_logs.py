@@ -15,14 +15,14 @@ def shift_time(full_time_str, seconds_delta):
     except Exception:
         return full_time_str
 
-def get_lower_bound_offset(file_path, target_time_str):
+def get_lower_bound_offset(file_path, target_hms):
     """
-    Binary Search to find the byte offset where log timestamp >= target_time_str.
-    Expects log lines starting with [YYYY-MM-DD HH:MM:SS...]
+    Binary Search to find the byte offset where log timestamp >= target_hms.
+    Expects log lines starting with [HH:MM:SS.ns]
     """
     if not os.path.exists(file_path):
         return 0
-        
+
     size = os.path.getsize(file_path)
     low, high = 0, size
     best_offset = size
@@ -41,11 +41,11 @@ def get_lower_bound_offset(file_path, target_time_str):
             line = line_bytes.decode('utf-8', errors='ignore')
             try:
                 if line.startswith('['):
-                    # Extract: YYYY-MM-DD HH:MM:SS (19 chars)
-                    current_ts = line.split(']')[0][1:20] 
+                    # Extract: HH:MM:SS (8 chars) from [HH:MM:SS.xxxxxx]
+                    current_hms = line.split(']')[0][1:9]
 
-                    if current_ts >= target_time_str:
-                        # Success: this line is at or after target. Look left for earlier matches.
+                    if current_hms >= target_hms:
+                        # Success: this line is at or after target. Look left.
                         best_offset = f.tell() - len(line_bytes)
                         high = mid - 1
                     else:
@@ -69,9 +69,8 @@ def extract_chunk(input_path, output_path, start_off, end_off):
         infile.seek(start_off)
         remaining = length
         while remaining > 0:
-            # 10MB chunks for GPFS efficiency
             chunk = infile.read(min(remaining, 10 * 1024 * 1024))
-            if not chunk: 
+            if not chunk:
                 break
             outfile.write(chunk)
             remaining -= len(chunk)
@@ -89,63 +88,54 @@ def main():
         print(f"Error: Giant log not found at {giant_log}")
         sys.exit(1)
 
-    # 1. Locate the timestamp metadata
     log_pattern = os.path.join(bucket, "timestamps_*.log")
     log_files = glob.glob(log_pattern)
     if not log_files:
         print("Error: No timestamp log found in bucket.")
         return
 
-    # Use the most recent log file
     timestamp_file = max(log_files, key=os.path.getmtime)
-    
-    # ANCHOR THE DATE: Get the date from the file's creation time
     file_mtime = datetime.fromtimestamp(os.path.getmtime(timestamp_file))
     date_anchor = file_mtime.strftime("%Y-%m-%d")
-    
+
     print(f"Using metadata: {os.path.basename(timestamp_file)}")
     print(f"Date Anchor: {date_anchor}")
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    # Convert HH:MM:SS entries to full YYYY-MM-DD HH:MM:SS
     entries = []
     with open(timestamp_file, 'r') as f:
         for line in f:
             if ',' in line:
                 name, hms = line.strip().split(',')
-                # Logic: If hms is "00:xx" and anchor is "23:xx", it handles rollover via shift_time later
                 full_ts = f"{date_anchor} {hms}"
                 entries.append((name, full_ts))
 
-    # 2. Slice the giant log based on the sequential order
     for idx, entry in enumerate(entries):
         test_name, start_time_full = entry
         test_safe_name = test_name.replace("/", "_")
 
-        # Start 5 seconds before the logged time
-        padded_start = shift_time(start_time_full, -5)
+        # Padded start (HH:MM:SS)
+        padded_start_full = shift_time(start_time_full, -5)
+        search_start_hms = padded_start_full.split(' ')[1]
 
         if idx + 1 < len(entries):
-            # End 5 seconds before the NEXT test starts
             next_test_start = entries[idx+1][1]
-            padded_end = shift_time(next_test_start, -5)
+            padded_end_full = shift_time(next_test_start, -5)
             
-            # Midnight Rollover Check: If Next Test time < Current Test time string-wise,
-            # it means we crossed midnight. We must increment the date for padded_end.
-            if padded_end < padded_start:
-                padded_end = shift_time(padded_end, 86400) # Add 24 hours
+            if padded_end_full < padded_start_full:
+                padded_end_full = shift_time(padded_end_full, 86400)
+            
+            search_end_hms = padded_end_full.split(' ')[1]
         else:
-            # FOR THE FINAL TEST: Grab until the very end of the file
-            padded_end = "9999-12-31 23:59:59" 
+            search_end_hms = "23:59:59" # Final test uses EOF fallback
 
-        print(f"--- Slicing {test_name} [{padded_start} to {padded_end}] ---")
+        print(f"--- Slicing {test_name} [{search_start_hms} to {search_end_hms}] ---")
 
-        s_off = get_lower_bound_offset(giant_log, padded_start)
-        e_off = get_lower_bound_offset(giant_log, padded_end)
+        s_off = get_lower_bound_offset(giant_log, search_start_hms)
+        e_off = get_lower_bound_offset(giant_log, search_end_hms)
 
-        # Fallback to EOF if binary search misses the "Far Future" date
         if e_off <= s_off:
             e_off = os.path.getsize(giant_log)
 
@@ -155,3 +145,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

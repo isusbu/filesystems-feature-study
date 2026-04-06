@@ -16,10 +16,12 @@ read -p "End Test #: " END
 
 # Path Setup
 DATE_AND_TIME="$(date +%Y%m%d_%H%M)"
-USERNAME=satche
+USERNAME=$(whoami)
 BATCH_NAME="xfstests_${FSTYP}_${TEST_FOLDER}_${START}_to_${END}_${DATE_AND_TIME}"
 GPFS_BUCKET="/mnt/gpfs/fs-study"
-mkdir -p "$GPFS_BUCKET/${USERNAME}/$BATCH_NAME/logs"
+LOG_DIRECTORY="${GPFS_BUCKET}/${USERNAME}/${FSTYP}/${BATCH_NAME}/logs"
+mkdir -p ${LOG_DIRECTORY}
+#mkdir -p "$GPFS_BUCKET/${USERNAME}/${FSTYP}/$BATCH_NAME/logs"
 
 # Create local.config in xfstests path
 XFSTESTS_PATH="/var/tmp/xfstests-dev-run"
@@ -31,6 +33,7 @@ export SCRATCH_MNT=/mnt/${FSTYP}Scratch
 export FSTYP=$FSTYP
 EOF
 
+sudo rm -f /tmp/trace_metadata.env
 # Save Metadata for Script 2 and 3
 cat <<EOF > /tmp/trace_metadata.env
 FSTYP=$FSTYP
@@ -39,7 +42,7 @@ START=$START
 END=$END
 BATCH_NAME=$BATCH_NAME
 GPFS_BUCKET=$GPFS_BUCKET
-OUTPUT_DIR="$GPFS_BUCKET/${USERNAME}/$BATCH_NAME/logs"
+OUTPUT_DIR=$LOG_DIRECTORY
 SESSION="fs_${FSTYP}_tests_${TEST_FOLDER}_${START}_${END}_${DATE_AND_TIME}"
 EOF
 

@@ -14,7 +14,9 @@ if [ -z "$FSTYP" ]; then
 fi
 FS=${FSTYP}
 
-USERNAME=satche
+USERNAME=${SUDO_USER:-$(whoami)}
+echo "------------------${USERNAME}--------------------------- "
+#USERNAME=$(whoami)
 PROJECT_DIR="/home/${USERNAME}/filesystems-feature-study/"
 XFSTESTS_PATH="/var/tmp/xfstests-dev-run"
 LTTNG_DIR="/home/${USERNAME}/filesystems-feature-study/lttng"
@@ -29,7 +31,7 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 echo "---------------"
 # Force the logs to be writable so 'init.sh' can record the hook status
-sudo rm -f "$LTTNG_DIR/hooked.txt" "$LTTNG_DIR/failed.txt"
+rm -f "$LTTNG_DIR/hooked.txt" "$LTTNG_DIR/failed.txt"
 touch "$LTTNG_DIR/hooked.txt" "$LTTNG_DIR/failed.txt"
 chmod 666 "$LTTNG_DIR/hooked.txt" "$LTTNG_DIR/failed.txt"
 echo "-------------"
@@ -40,10 +42,16 @@ sudo lttng destroy --all
 sudo umount /mnt/${FS}Test # Unmount so we can format
 sudo umount /mnt/${FS}Scratch
 
-# Ensure the TEST_DEV matches the FS we want to trace
 echo ">>> Ensuring /dev/loop10 amd 11 are formatted as $FS..."
-sudo mkfs.${FS} -f /dev/loop10
-sudo mkfs.${FS} -f /dev/loop11
+if [ "$FS" == "ext4" ]; then
+    # ext4 uses -F (capital) to force formatting a partition
+    sudo mkfs.ext4 -F /dev/loop10
+    sudo mkfs.ext4 -F /dev/loop11
+else
+    # f2fs and xfs use -f (lowercase)
+    sudo mkfs.${FS} -f /dev/loop10
+    sudo mkfs.${FS} -f /dev/loop11
+fi
 
 # Init and Start LTTng Tracer
 echo ">>> Starting Tracer for Session: $SESSION"
@@ -51,6 +59,8 @@ echo ">>> Starting Tracer for Session: $SESSION"
 
 # Define the log name using the batch identifier
 TIMESTAMP_LOG="${OUTPUT_DIR}/timestamps_${BATCH_NAME}.log"
+rm -f "${TIMESTAMP_LOG}"
+touch "${TIMESTAMP_LOG}"
 
 # Workload Loop -  run tests (TODO : consider running 5-10 tests max at a time, as log could be enormous??)
 for i in $(seq -f "%03g" $START $END); do
