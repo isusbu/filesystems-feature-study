@@ -70,7 +70,7 @@ for i in $(seq -f "%03g" $START $END); do
     echo "${TEST_NAME},$(date +%H:%M:%S)" >> "${TIMESTAMP_LOG}"
     
     cd "$XFSTESTS_PATH"
-    sudo -E sg ext4_grp -c "./check $TEST_NAME" | tee "$OUTPUT_DIR/${TEST_FOLDER}_${i}.out"
+    sudo -E sg ext4_grp -c "./check $TEST_NAME" | tee "$XFS_TESTS_LOGS_DIRECTORY/${TEST_FOLDER}_${i}.out"
     
     echo "Sleeping for 15 seconds until next test"
     sleep 15

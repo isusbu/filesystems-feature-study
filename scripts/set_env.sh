@@ -21,7 +21,8 @@ BATCH_NAME="xfstests_${FSTYP}_${TEST_FOLDER}_${START}_to_${END}_${DATE_AND_TIME}
 GPFS_BUCKET="/mnt/gpfs/fs-study"
 LOG_DIRECTORY="${GPFS_BUCKET}/${USERNAME}/${FSTYP}/${BATCH_NAME}/logs"
 mkdir -p ${LOG_DIRECTORY}
-#mkdir -p "$GPFS_BUCKET/${USERNAME}/${FSTYP}/$BATCH_NAME/logs"
+XFS_TESTS_LOGS_DIRECTORY="${LOG_DIRECTORY}/xfstests_logs"
+mkdir -p ${XFS_TESTS_LOGS_DIRECTORY}
 
 # Create local.config in xfstests path
 XFSTESTS_PATH="/var/tmp/xfstests-dev-run"
@@ -44,6 +45,7 @@ BATCH_NAME=$BATCH_NAME
 GPFS_BUCKET=$GPFS_BUCKET
 OUTPUT_DIR=$LOG_DIRECTORY
 SESSION="fs_${FSTYP}_tests_${TEST_FOLDER}_${START}_${END}_${DATE_AND_TIME}"
+XFS_TESTS_LOGS_DIRECTORY=${XFS_TESTS_LOGS_DIRECTORY}
 EOF
 
 echo "Setup Complete. Metadata saved to /tmp/trace_metadata.env"
