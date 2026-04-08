@@ -6,7 +6,7 @@ NAME="fio-workloads"
 ./lttng/init.sh "$NAME"
 
 # list the fio jobs from jobs directory, and run them one by one
-for job in jobs/*.fio; do
+for job in workloads/fio/jobs/*.fio; do
     echo "Running fio job: $job"
 
     # start LTTng tracing for this job
