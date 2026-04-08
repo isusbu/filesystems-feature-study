@@ -64,4 +64,4 @@ fi
 
 # run the logparser
 lp -file "$OUTPUT_FILE" -init "${KPROBE_FILE_PATH}"
-echo "logparser output saved to: ${OUTPUT_DIR}/${OUTPUT_NAME}.parsed"
+echo "logparser output saved to: ${OUTPUT_DIR}/${OUTPUT_NAME}.out.count"
