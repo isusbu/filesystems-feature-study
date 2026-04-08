@@ -5,9 +5,33 @@ random_generator=lfsr
 direct=1
 ioengine=libaio
 iodepth=128
-# Set max acceptable latency to 500msec
+
+# latency target = 500 ms (microseconds)
 latency_target=500000
-# profile over a 5s window
+
+# evaluate latency over 5 seconds
 latency_window=5000000
-# 99.9% of IOs must be below the target
+
+# 99.9% under target
 latency_percentile=99.9
+
+# enable latency-controlled run
+latency_run=1
+
+# runtime
+time_based=1
+runtime=60
+ramp_time=5
+
+# file settings
+filename=fio_testfile
+size=2G
+
+# reporting
+group_reporting=1
+write_lat_log=lat
+write_bw_log=bw
+write_iops_log=iops
+log_hist_msec=1000
+
+[job1]
