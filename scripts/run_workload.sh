@@ -1,7 +1,6 @@
 #!/bin/bash
-# run_workload.sh
 
-# Load metadata
+# load metadata
 if [ ! -f "/tmp/trace_metadata.env" ]; then
     echo "Error: Metadata file missing! Run set_env.sh first."
     exit 1
@@ -14,71 +13,46 @@ if [ -z "$FSTYP" ]; then
 fi
 FS=${FSTYP}
 
-USERNAME=${SUDO_USER:-$(whoami)}
-echo "------------------${USERNAME}--------------------------- "
-#USERNAME=$(whoami)
+USERNAME="${SUDO_USER:-$USER}"
 PROJECT_DIR="/home/${USERNAME}/filesystems-feature-study/"
 XFSTESTS_PATH="/var/tmp/xfstests-dev-run"
 LTTNG_DIR="/home/${USERNAME}/filesystems-feature-study/lttng"
 
-#rm -f "$LTTNG_DIR/hooked.txt" "$LTTNG_DIR/failed.txt"
-#touch "$LTTNG_DIR/hooked.txt" "$LTTNG_DIR/failed.txt"
-#chmod 666 "$LTTNG_DIR/hooked.txt" "$LTTNG_DIR/failed.txt"
-
-# keep sudo alive
-sudo -v
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
-
-echo "---------------"
-# Force the logs to be writable so 'init.sh' can record the hook status
-rm -f "$LTTNG_DIR/hooked.txt" "$LTTNG_DIR/failed.txt"
-touch "$LTTNG_DIR/hooked.txt" "$LTTNG_DIR/failed.txt"
-chmod 666 "$LTTNG_DIR/hooked.txt" "$LTTNG_DIR/failed.txt"
-echo "-------------"
 getent group ext4_grp
-# DESTROY ghost sessions
-sudo lttng destroy --all
 
-sudo umount /mnt/${FS}Test # Unmount so we can format
-sudo umount /mnt/${FS}Scratch
+umount /mnt/${FS}Test # Unmount so we can format
+umount /mnt/${FS}Scratch
 
 echo ">>> Ensuring /dev/loop10 amd 11 are formatted as $FS..."
 if [ "$FS" == "ext4" ]; then
     # ext4 uses -F (capital) to force formatting a partition
-    sudo mkfs.ext4 -F /dev/loop10
-    sudo mkfs.ext4 -F /dev/loop11
+    mkfs.ext4 -F /dev/loop10
+    mkfs.ext4 -F /dev/loop11
 else
     # f2fs and xfs use -f (lowercase)
-    sudo mkfs.${FS} -f /dev/loop10
-    sudo mkfs.${FS} -f /dev/loop11
+    mkfs.${FS} -f /dev/loop10
+    mkfs.${FS} -f /dev/loop11
 fi
 
-# Init and Start LTTng Tracer
+# init and Start LTTng Tracer
 echo ">>> Starting Tracer for Session: $SESSION"
-(cd "$PROJECT_DIR" && sudo ./lttng/init.sh "$SESSION" && sudo ./lttng/start.sh "$SESSION")
+(cd "$PROJECT_DIR" && ./lttng/init.sh "$SESSION")
 
-# Define the log name using the batch identifier
-TIMESTAMP_LOG="${OUTPUT_DIR}/timestamps_${BATCH_NAME}.log"
-rm -f "${TIMESTAMP_LOG}"
-touch "${TIMESTAMP_LOG}"
-
-# Workload Loop -  run tests (TODO : consider running 5-10 tests max at a time, as log could be enormous??)
+# workload Loop - run tests (TODO : consider running 5-10 tests max at a time, as log could be enormous??)
 for i in $(seq -f "%03g" $START $END); do
     TEST_NAME="${TEST_FOLDER}/${i}"
     [ ! -f "${XFSTESTS_PATH}/tests/${TEST_NAME}" ] && continue
 
-    echo "${TEST_NAME},$(date +%H:%M:%S)" >> "${TIMESTAMP_LOG}"
+    ./lttng/start.sh "$SESSION"
     
-    cd "$XFSTESTS_PATH"
-    sudo -E sg ext4_grp -c "./check $TEST_NAME" | tee "$XFS_TESTS_LOGS_DIRECTORY/${TEST_FOLDER}_${i}.out"
+    (cd "$XFSTESTS_PATH" && sudo -E sg ext4_grp -c "./check $TEST_NAME" | tee "$XFS_TESTS_LOGS_DIRECTORY/${TEST_FOLDER}_${i}.out")
     
-    echo "Sleeping for 15 seconds until next test"
-    sleep 15
+    (cd "$PROJECT_DIR" && ./lttng/stop.sh "$SESSION" "xfstests_${TEST_FOLDER}_${i}")
 done
 
 # Stop tracer & move big lttng log
 echo ">>> Stopping Tracer..."
-(cd "$PROJECT_DIR" && sudo ./lttng/stop.sh "$SESSION" && sudo ./lttng/cleanup.sh "$SESSION")
+(cd "$PROJECT_DIR" &&./lttng/cleanup.sh "$SESSION")
 
 SOURCE_LOG="${GPFS_BUCKET}/${FS}-session-${SESSION}.out"
 LOG_KPROBE_COUNT="${GPFS_BUCKET}/${FS}-session-${SESSION}.out.count"

@@ -1,30 +1,32 @@
 #!/bin/bash
-# set_env.sh
 
-# Input about configurations and tests
+# input about configurations and tests
 while true; do
     read -p "Enter Filesystem (ext4, nfs, f2fs): " FSTYP
     FSTYP=$(echo "$FSTYP" | tr '[:upper:]' '[:lower:]')
     [[ "$FSTYP" =~ ^(ext4|nfs|f2fs)$ ]] && break || echo "Invalid FS."
 done
 
+# xfs requirements
 read -p "Enter Test Folder [default: $FSTYP]: " TEST_FOLDER
 TEST_FOLDER=${TEST_FOLDER:-$FSTYP}
 
 read -p "Start Test #: " START
 read -p "End Test #: " END
 
-# Path Setup
+# path setup
 DATE_AND_TIME="$(date +%Y%m%d_%H%M)"
-USERNAME=$(whoami)
+USERNAME="${SUDO_USER:-$USER}"
 BATCH_NAME="xfstests_${FSTYP}_${TEST_FOLDER}_${START}_to_${END}_${DATE_AND_TIME}"
 GPFS_BUCKET="/mnt/gpfs/fs-study"
+
 LOG_DIRECTORY="${GPFS_BUCKET}/${USERNAME}/${FSTYP}/${BATCH_NAME}/logs"
 mkdir -p ${LOG_DIRECTORY}
+
 XFS_TESTS_LOGS_DIRECTORY="${LOG_DIRECTORY}/xfstests_logs"
 mkdir -p ${XFS_TESTS_LOGS_DIRECTORY}
 
-# Create local.config in xfstests path
+# create local.config in xfstests path
 XFSTESTS_PATH="/var/tmp/xfstests-dev-run"
 cat <<EOF > "${XFSTESTS_PATH}/local.config"
 export TEST_DEV=/dev/loop10
@@ -34,8 +36,9 @@ export SCRATCH_MNT=/mnt/${FSTYP}Scratch
 export FSTYP=$FSTYP
 EOF
 
-sudo rm -f /tmp/trace_metadata.env
-# Save Metadata for Script 2 and 3
+rm -f /tmp/trace_metadata.env
+
+# save metadata for script 2 and 3
 cat <<EOF > /tmp/trace_metadata.env
 FSTYP=$FSTYP
 TEST_FOLDER=$TEST_FOLDER
