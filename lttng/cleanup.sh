@@ -13,15 +13,7 @@ else
     exit 1
 fi
 
-# check for babeltrace2 install
-if cexists "babeltrace2"; then
-    echo "babeltrace2 found!"
-else
-    echo "please install babeltrace2!"
-    exit 1
-fi
-
-# Load your metadata if it exists
+# load your metadata if it exists
 if [ -f "/tmp/trace_metadata.env" ]; then
     source /tmp/trace_metadata.env
 fi
@@ -30,26 +22,15 @@ fi
 # if FSTYP is not set, default to ext4
 FS=${FSTYP:-ext4}
 
-# tracing parameters
-#FS=ext4
 SUFFIX=$1
 SESSION_NAME="${FS}-session-${SUFFIX}"
-OUTPUT_DIR="/mnt/gpfs/fs-study/${SESSION_NAME}"
-USERNAME=${SUDO_USER:-$(whoami)}
 
-# read kernel probes for tracing from a target file
-KPROBE_FILE_PATH="/home/${USERNAME}/filesystems-feature-study/filesystems/${FS}/kprobes.txt"
-if [ ! -f "$KPROBE_FILE_PATH" ]; then
-    echo "missing file: $KPROBE_FILE_PATH"
-    exit 1
-fi
-
-# export the tracing results
-babeltrace2 "/mnt/gpfs/fs-study/${SESSION_NAME}" > "/mnt/gpfs/fs-study/${SESSION_NAME}.out"
-# rm -rf "${OUTPUT_DIR}"
-
-# run the logparser
-lp -file "/mnt/gpfs/fs-study/${SESSION_NAME}.out" -init "${KPROBE_FILE_PATH}"
+STORAGE_DIR="/mnt/gpfs/fs-study"
+OUTPUT_DIR="${STORAGE_DIR}/${SESSION_NAME}"
+SESSION_DIR="${OUTPUT_DIR}/lttng-traces"
 
 # destroy the session
 lttng destroy "${SESSION_NAME}"
+
+# remove the session directory
+rm -rf "$SESSION_DIR"

@@ -13,7 +13,7 @@ else
     exit 1
 fi
 
-# Load your metadata if it exists
+# load your metadata if it exists
 if [ -f "/tmp/trace_metadata.env" ]; then
     source /tmp/trace_metadata.env
 fi
@@ -21,12 +21,20 @@ fi
 # tracing parameters
 # if FSTYP is not set, default to ext4
 FS=${FSTYP:-ext4}
-SUFFIX=$1
-SESSION_NAME="${FS}-session-${SUFFIX}"
-OUTPUT_DIR="/mnt/gpfs/fs-study/${SESSION_NAME}" # our GPFS storage
 GROUP_ID=1002
 ENABLE_KSTACK=0 # 0 disable, 1 enable
-LTTNG_DIR="/tmp/lttng"
+
+SUFFIX=$1
+SESSION_NAME="${FS}-session-${SUFFIX}"
+
+# create the output directory for the session
+STORAGE_DIR="/mnt/gpfs/fs-study"
+OUTPUT_DIR="${STORAGE_DIR}/${SESSION_NAME}"
+mkdir -p "$OUTPUT_DIR"
+
+# lttng tracing output directory
+SESSION_DIR="${OUTPUT_DIR}/lttng-traces"
+mkdir -p "$SESSION_DIR"
 
 # read kernel probes for tracing from a target file
 KPROBE_FILE_PATH="filesystems/${FS}/kprobes.txt"
@@ -36,7 +44,7 @@ if [ ! -f "$KPROBE_FILE_PATH" ]; then
 fi
 
 # create the lttng session
-lttng create "$SESSION_NAME" -o "$OUTPUT_DIR"
+lttng create "$SESSION_NAME" -o "$SESSION_DIR"
 
 # create the channel for tracing
 lttng enable-channel --kernel channel0 \
@@ -52,8 +60,8 @@ if [ "$ENABLE_KSTACK" -ne 0 ]; then
     lttng add-context --kernel --type callstack-kernel
 fi
 
-# cleanup
-rm -f ${LTTNG_DIR}/failed.txt ${LTTNG_DIR}/hooked.txt && touch ${LTTNG_DIR}/failed.txt ${LTTNG_DIR}/hooked.txt
+# remove existing files and create new ones
+rm -f ${OUTPUT_DIR}/failed.txt ${OUTPUT_DIR}/hooked.txt && touch ${OUTPUT_DIR}/failed.txt ${OUTPUT_DIR}/hooked.txt
 
 # read probes line-by-line
 while IFS= read -r tp; do
@@ -67,21 +75,19 @@ while IFS= read -r tp; do
     
     STATUS=$?
     if [ "$STATUS" -ne 0 ]; then
-        echo "$tp" >> ${LTTNG_DIR}/failed.txt
+        echo "$tp" >> ${OUTPUT_DIR}/failed.txt
     else
-        echo "$tp" >> ${LTTNG_DIR}/hooked.txt
+        echo "$tp" >> ${OUTPUT_DIR}/hooked.txt
     fi
 done < "$KPROBE_FILE_PATH"
 
 lttng track --kernel --session="$SESSION_NAME" --gid="$GROUP_ID"
 
 echo "session built."
-echo "probes for tracing: see hooked.txt"
-echo "failed hooks: see failed.txt"
-echo "run: sudo lttng start $SESSION_NAME"
-echo "execute your workload ..."
-echo "run: sudo lttng stop $SESSION_NAME"
-echo "run: sudo lttng destroy $SESSION_NAME"
-echo "output at: $OUTPUT_DIR"
-echo "use: babeltrace2 $OUTPUT_DIR"
+echo "tracing output will be saved to: $SESSION_DIR"
+echo "probes for tracing: see ${OUTPUT_DIR}/hooked.txt"
+echo "failed hooks: see ${OUTPUT_DIR}/failed.txt"
+echo "start: ./lttng/start.sh ${SUFFIX}"
+echo "stop: ./lttng/stop.sh ${SUFFIX}"
+echo "cleanup: ./lttng/cleanup.sh ${SUFFIX}"
 echo "happy life!"
