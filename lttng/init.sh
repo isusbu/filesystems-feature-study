@@ -18,7 +18,6 @@ if [ -f "/tmp/trace_metadata.env" ]; then
     source /tmp/trace_metadata.env
 fi
 
-
 # tracing parameters
 # if FSTYP is not set, default to ext4
 FS=${FSTYP:-ext4}
@@ -27,7 +26,7 @@ SESSION_NAME="${FS}-session-${SUFFIX}"
 OUTPUT_DIR="/mnt/gpfs/fs-study/${SESSION_NAME}" # our GPFS storage
 GROUP_ID=1002
 ENABLE_KSTACK=0 # 0 disable, 1 enable
-LTTNG_DIR="/home/satche/filesystems-feature-study/lttng"
+LTTNG_DIR="/tmp/lttng"
 
 # read kernel probes for tracing from a target file
 KPROBE_FILE_PATH="filesystems/${FS}/kprobes.txt"
@@ -41,8 +40,8 @@ lttng create "$SESSION_NAME" -o "$OUTPUT_DIR"
 
 # create the channel for tracing
 lttng enable-channel --kernel channel0 \
-  --subbuf-size=8M \
-  --num-subbuf=16
+  --subbuf-size=64M \
+  --num-subbuf=2
 
 # context needed for tracing
 lttng add-context --kernel --type procname

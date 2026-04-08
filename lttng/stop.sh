@@ -28,3 +28,7 @@ SUFFIX=$1
 SESSION_NAME="${FS}-session-${SUFFIX}"
 
 lttng stop $SESSION_NAME
+
+# rotate the trace to flush the buffers and make the trace data available for analysis
+out=$(lttng rotate --session $SESSION_NAME)
+echo "rotate output: $out"

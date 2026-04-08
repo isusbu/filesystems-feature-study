@@ -10,7 +10,6 @@ if [ -f "/tmp/trace_metadata.env" ]; then
     source /tmp/trace_metadata.env
 fi
 
-
 # tracing parameters
 # if FSTYP is not set, default to ext4
 FS=${FSTYP:-ext4}
