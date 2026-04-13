@@ -7,8 +7,10 @@ TARGET_FS="/mnt/ext4"
 ./lttng/init.sh "$NAME"
 
 # list the fio jobs from jobs directory, and run them one by one
+count=1
 for job in workloads/fio/jobs/*.fio; do
-    echo "Running fio job: $job"
+    echo "[${count}] running fio job: $job"
+    ((count++))
 
     # clear the fio directory before each job to avoid interference from previous runs
     rm -rf $TARGET_FS/*
