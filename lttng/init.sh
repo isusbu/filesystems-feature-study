@@ -28,7 +28,7 @@ SUFFIX=$1
 SESSION_NAME="${FS}-session-${SUFFIX}"
 
 # create the output directory for the session
-STORAGE_DIR="/mnt/gpfs/fs-study"
+STORAGE_DIR="/tmp/lttng-tmp" # replaced with old path to increase storage speed "/mnt/gpfs/fs-study"
 OUTPUT_DIR="${STORAGE_DIR}/${SESSION_NAME}"
 mkdir -p "$OUTPUT_DIR"
 

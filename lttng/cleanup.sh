@@ -25,7 +25,7 @@ FS=${FSTYP:-ext4}
 SUFFIX=$1
 SESSION_NAME="${FS}-session-${SUFFIX}"
 
-STORAGE_DIR="/mnt/gpfs/fs-study"
+STORAGE_DIR="/tmp/lttng-tmp"
 OUTPUT_DIR="${STORAGE_DIR}/${SESSION_NAME}"
 SESSION_DIR="${OUTPUT_DIR}/lttng-traces"
 
