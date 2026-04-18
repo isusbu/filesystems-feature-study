@@ -48,7 +48,7 @@ lttng create "$SESSION_NAME" -o "$SESSION_DIR"
 
 # create the channel for tracing
 lttng enable-channel --kernel channel0 \
-  --subbuf-size=64M \
+  --subbuf-size=512M \
   --num-subbuf=2
 
 # context needed for tracing
