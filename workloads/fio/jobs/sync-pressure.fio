@@ -1,7 +1,7 @@
 [global]
 ioengine=sync
 direct=0
-runtime=30
+runtime=20
 time_based=1
 group_reporting=1
 thread=1
