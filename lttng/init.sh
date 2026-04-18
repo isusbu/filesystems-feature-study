@@ -83,6 +83,15 @@ done < "$KPROBE_FILE_PATH"
 
 lttng track --kernel --session="$SESSION_NAME" --gid="$GROUP_ID"
 
+# move the failed and hooked files to the permanent session directory
+GPFS_PATH="/mnt/gpfs/fs-study"
+GPFS_OUTPUT_DIR="${GPFS_PATH}/${SESSION_NAME}"
+mkdir -p "$GPFS_OUTPUT_DIR"
+
+cp "${OUTPUT_DIR}/failed.txt" "$GPFS_OUTPUT_DIR/"
+cp "${OUTPUT_DIR}/hooked.txt" "$GPFS_OUTPUT_DIR/"
+echo "failed and hooked probe files copied to: $GPFS_OUTPUT_DIR"
+
 echo "session built."
 echo "tracing output will be saved to: $SESSION_DIR"
 echo "probes for tracing: see ${OUTPUT_DIR}/hooked.txt"

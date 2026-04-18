@@ -33,4 +33,4 @@ SESSION_DIR="${OUTPUT_DIR}/lttng-traces"
 lttng destroy "${SESSION_NAME}"
 
 # remove the session directory
-rm -rf "$SESSION_DIR"
+rm -rf "$SESSION_DIR" "$OUTPUT_DIR"
