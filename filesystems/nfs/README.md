@@ -10,6 +10,12 @@ Setup a target disk for workloads test (NFS).
 # install tools if needed
 sudo apt-get install -y nfs-kernel-server nfs-common
 
+# create a loop device for NFS server
+sudo dd if=/dev/zero of=/mnt/nfs.img bs=1M count=4096
+sudo mkfs.ext4 /mnt/nfs.img
+sudo mkdir -p /srv/nfstest
+sudo mount -o loop /mnt/nfs.img /srv/nfstest
+
 # make a server-side export directory
 sudo mkdir -p /srv/nfstest
 sudo chown -R "$USER":"$USER" /srv/nfstest
