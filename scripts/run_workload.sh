@@ -34,6 +34,9 @@ else
     mkfs.${FS} -f /dev/loop11
 fi
 
+LTTNG_OUTPUT_DIR="${OUTPUT_DIR}/lttng_logs"
+mkdir ${LTTNG_OUTPUT_DIR}
+
 # init and Start LTTng Tracer
 echo ">>> Starting Tracer for Session: $SESSION"
 (cd "$PROJECT_DIR" && ./lttng/init.sh "$SESSION")
@@ -43,29 +46,38 @@ for i in $(seq -f "%03g" $START $END); do
     TEST_NAME="${TEST_FOLDER}/${i}"
     [ ! -f "${XFSTESTS_PATH}/tests/${TEST_NAME}" ] && continue
 
-    ./lttng/start.sh "$SESSION"
+    (cd "$PROJECT_DIR" && ./lttng/start.sh "$SESSION")
     
     (cd "$XFSTESTS_PATH" && sudo -E sg ext4_grp -c "./check $TEST_NAME" | tee "$XFS_TESTS_LOGS_DIRECTORY/${TEST_FOLDER}_${i}.out")
     
     (cd "$PROJECT_DIR" && ./lttng/stop.sh "$SESSION" "xfstests_${TEST_FOLDER}_${i}")
+
+    ACTUAL_SOURCE_DIR="${GPFS_BUCKET}/${FS}-session-${SESSION}"
+
+    if [ -d "$ACTUAL_SOURCE_DIR" ]; then
+       echo ">>> Moving all logs from $ACTUAL_SOURCE_DIR to $LTTNG_OUTPUT_DIR"
+    
+       # Move all individual test logs and count files to your batch output folder
+       sudo mv "$ACTUAL_SOURCE_DIR"/* "$LTTNG_OUTPUT_DIR/"
+    
+       # Also copy the global hook lists
+       sudo cp "$LTTNG_DIR/failed.txt" "$OUTPUT_DIR/failed_global.txt"
+       sudo cp "$LTTNG_DIR/hooked.txt" "$OUTPUT_DIR/hooked_global.txt"
+    
+       # Clean up the temporary session directory
+       sudo rm -rf "$ACTUAL_SOURCE_DIR"
+    
+       sudo chown -R $(whoami):$(id -gn) "$OUTPUT_DIR"
+       echo "Workload complete. All traces saved to $OUTPUT_DIR"
+    else
+       echo "!!! ERROR: Source directory not found at $ACTUAL_SOURCE_DIR"
+    fi
+    sleep 5
+
 done
 
 # Stop tracer & move big lttng log
 echo ">>> Stopping Tracer..."
 (cd "$PROJECT_DIR" &&./lttng/cleanup.sh "$SESSION")
 
-SOURCE_LOG="${GPFS_BUCKET}/${FS}-session-${SESSION}.out"
-LOG_KPROBE_COUNT="${GPFS_BUCKET}/${FS}-session-${SESSION}.out.count"
-TARGET_LOG="$OUTPUT_DIR/lttng_all_traces.out"
-TARGET_LOG_KPROBE_COUNT="$OUTPUT_DIR/lttng_all_traces.out.count"
-
-if [ -f "$SOURCE_LOG" ]; then
-    sudo mv "$SOURCE_LOG" "$TARGET_LOG"
-    sudo mv "$LOG_KPROBE_COUNT" "$TARGET_LOG_KPROBE_COUNT"
-    sudo cp "$LTTNG_DIR/failed.txt" "$OUTPUT_DIR/failed_global.txt"
-    sudo cp "$LTTNG_DIR/hooked.txt" "$OUTPUT_DIR/hooked_global.txt"
-    sudo chown $(whoami):$(id -gn) "$OUTPUT_DIR"
-    echo "Workload complete. Giant lttng log saved to $TARGET_LOG"
-else
-   echo "!!! ERROR: Source log not found at $SOURCE_LOG"
-fi
+sudo lttng destroy --all

@@ -20,7 +20,7 @@ USERNAME="${SUDO_USER:-$USER}"
 BATCH_NAME="xfstests_${FSTYP}_${TEST_FOLDER}_${START}_to_${END}_${DATE_AND_TIME}"
 GPFS_BUCKET="/mnt/gpfs/fs-study"
 
-LOG_DIRECTORY="${GPFS_BUCKET}/${USERNAME}/${FSTYP}/${BATCH_NAME}/logs"
+LOG_DIRECTORY="${GPFS_BUCKET}/${USERNAME}/${FSTYP}/${TEST_FOLDER}/${BATCH_NAME}"
 mkdir -p ${LOG_DIRECTORY}
 
 XFS_TESTS_LOGS_DIRECTORY="${LOG_DIRECTORY}/xfstests_logs"
@@ -38,7 +38,7 @@ EOF
 
 rm -f /tmp/trace_metadata.env
 
-# save metadata for script 2 and 3
+# save metadata for script 2 
 cat <<EOF > /tmp/trace_metadata.env
 FSTYP=$FSTYP
 TEST_FOLDER=$TEST_FOLDER
