@@ -94,14 +94,14 @@ def non_zero_percentage(data):
     return 100.0 * non_zero / len(data)
 
 
-def plot_non_zero_percentages(results):
+def plot_non_zero_percentages(results, filesystem="ext4"):
     names = list(results.keys())
     values = list(results.values())
 
     plt.figure(figsize=(10, 5))
     plt.bar(names, values)
     plt.ylabel("coverage percentage (%)")
-    plt.title("Ext4 file system function coverage per workload")
+    plt.title(f"{filesystem.upper()} file system function coverage per workload")
     plt.xticks(rotation=90, ha="right")
     plt.ylim(0, 100)
     plt.tight_layout()
@@ -111,7 +111,7 @@ def plot_non_zero_percentages(results):
     plt.close()
 
 
-def main(files):
+def main(files, filesystem="ext4"):
     os.makedirs(OUTDIR, exist_ok=True)
 
     non_zero_results = {}
@@ -136,7 +136,7 @@ def main(files):
     plot_count_cdf_all(cdf_data)
 
     # Existing bar chart summary
-    plot_non_zero_percentages(non_zero_results)
+    plot_non_zero_percentages(non_zero_results, filesystem=filesystem)
 
 
 
@@ -161,8 +161,23 @@ if __name__ == "__main__":
         action="store_true",
         help="Recursively scan --dir for .count files.",
     )
+    parser.add_argument(
+        "-o",
+        "--outdir",
+        dest="outdir",
+        default=OUTDIR,
+        help=f"Output directory for plots (default: {OUTDIR}).",
+    )
+    parser.add_argument(
+        "--filesystem",
+        default="ext4",
+        help="Name of the filesystem being analyzed (default: ext4). Used in plot titles and labels.",
+    )
 
     args = parser.parse_args()
+
+    if args.outdir:
+        OUTDIR = args.outdir
 
     files = list(args.files)
     if args.directory:
@@ -178,4 +193,4 @@ if __name__ == "__main__":
         print("Usage: python hitmaps.py [file1.count ...] [--dir DIR] [--recursive]")
         sys.exit(1)
 
-    main(files)
+    main(files, filesystem=args.filesystem)
