@@ -76,9 +76,17 @@ GPFS_PATH="/mnt/gpfs/fs-study"
 GPFS_OUTPUT_DIR="${GPFS_PATH}/${SESSION_NAME}"
 mkdir -p "$GPFS_OUTPUT_DIR"
 
+# copy and check the output files before deleting the temporary ones, if the copy fails, we still have the original files in the temporary location
 cp "${OUTPUT_FILE}" "$GPFS_OUTPUT_DIR/"
 cp "${OUTPUT_DIR}/${OUTPUT_NAME}.out.count" "$GPFS_OUTPUT_DIR/"
 echo "output files copied to: $GPFS_OUTPUT_DIR"
+
+if [ -f "${GPFS_OUTPUT_DIR}/${OUTPUT_NAME}.out" ] && [ -f "${GPFS_OUTPUT_DIR}/${OUTPUT_NAME}.out.count" ]; then
+    echo "output files successfully copied to GPFS"
+else
+    echo "failed to copy output files to GPFS, keeping temporary files for debugging"
+    exit 1
+fi
 
 # delete the current tracing results to free up space for the next run
 rm -rf "${OUTPUT_FILE}" "${OUTPUT_DIR}/${OUTPUT_NAME}.out.count" "${archive_path}"
