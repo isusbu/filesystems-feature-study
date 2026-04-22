@@ -1,10 +1,9 @@
+import argparse
 import os
 import sys
-import argparse
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 
 OUTDIR = "plots"
 
@@ -51,41 +50,6 @@ def plot_function_counts(filename, data):
     plt.savefig(out, dpi=200)
     plt.close()
 
-def plot_count_cdf(filename, data):
-    values = np.array(sorted(data.values()))
-    cdf = np.cumsum(values) / np.sum(values)
-
-    plt.figure(figsize=(8, 5))
-    plt.plot(values, cdf)
-    plt.xlabel("Function call count")
-    plt.ylabel("Cumulative fraction of total calls")
-    plt.title("CDF of function call counts")
-    plt.grid(True)
-    plt.tight_layout()
-
-    out = os.path.join(OUTDIR, f"{os.path.basename(filename)}_cdf.png")
-    plt.savefig(out, dpi=200)
-    plt.close()
-
-def plot_count_cdf_all(cdf_data):
-    # cdf_data: dict[name] = list_of_values
-    plt.figure(figsize=(8, 5))
-
-    for name, values in cdf_data.items():
-        values = np.array(sorted(values))
-        cdf = np.cumsum(values) / np.sum(values)
-        plt.plot(values, cdf, label=name)
-
-    plt.xlabel("Function call count")
-    plt.ylabel("Cumulative fraction of total calls")
-    plt.title("CDF of function call counts")
-    plt.grid(True)
-    plt.legend()
-    plt.tight_layout()
-
-    out = os.path.join(OUTDIR, "all_files_cdf.png")
-    plt.savefig(out, dpi=200)
-    plt.close()
 
 def non_zero_percentage(data):
     if not data:
@@ -98,12 +62,25 @@ def plot_non_zero_percentages(results, filesystem="ext4"):
     names = list(results.keys())
     values = list(results.values())
 
-    plt.figure(figsize=(10, 5))
-    plt.bar(names, values)
+    plt.figure(figsize=(6, 5))
+    bars = plt.bar(names, values)
+    
+    # Add value labels on top of each bar
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2., height,
+                f'{height:.1f}',
+                ha='center', va='bottom', fontsize=9)
+    
+    # Add red horizontal line for maximum value
+    max_value = max(values)
+    plt.axhline(y=max_value, color='red', linestyle='--', linewidth=2, label=f'Max: {max_value:.1f}%')
+    
     plt.ylabel("coverage percentage (%)")
     plt.title(f"{filesystem.upper()} file system function coverage per workload")
     plt.xticks(rotation=90, ha="right")
     plt.ylim(0, 100)
+    plt.legend()
     plt.tight_layout()
 
     out = os.path.join(OUTDIR, "non_zero_summary.png")
@@ -124,7 +101,7 @@ def main(files, filesystem="ext4"):
         plot_function_counts(file, data)
 
         # Name used consistently for legends and bar plot
-        name = os.path.basename(file).replace(".count", "").replace("ext4-session-", "")
+        name = os.path.basename(file).replace(".out.count", "").replace("ext4-session-", "")
 
         # Store raw values for joint CDF plot
         cdf_data[name] = list(data.values())
@@ -132,12 +109,13 @@ def main(files, filesystem="ext4"):
         # Collect non-zero coverage percentages
         non_zero_results[name] = non_zero_percentage(data)
 
-    # New single CDF plot for all workloads
-    plot_count_cdf_all(cdf_data)
+    # Store the non-zero percentages in a text file for reference
+    with open(os.path.join(OUTDIR, "non_zero_percentages.txt"), "w") as f:
+        for name, pct in non_zero_results.items():
+            f.write(f"{name}: {pct:.2f}%\n")
 
     # Existing bar chart summary
     plot_non_zero_percentages(non_zero_results, filesystem=filesystem)
-
 
 
 if __name__ == "__main__":
