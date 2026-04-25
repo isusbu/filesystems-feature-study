@@ -1,5 +1,9 @@
 # F2FS
 
+By default all 30 features are enabled. Users have the control to disable them.
+
+[https://www.kernel.org/doc/Documentation/filesystems/f2fs.txt](https://www.kernel.org/doc/Documentation/filesystems/f2fs.txt)
+
 ## Drivers
 
 Setup a target disk for workloads test (F2FS).

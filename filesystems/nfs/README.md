@@ -1,5 +1,9 @@
 # NFS
 
+By default all 12 features are enabled.
+
+[https://man7.org/linux/man-pages/man5/nfs.5.html](https://man7.org/linux/man-pages/man5/nfs.5.html)
+
 ## Drivers
 
 Setup a target disk for workloads test (NFS).

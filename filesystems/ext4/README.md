@@ -1,5 +1,34 @@
 # Ext4
 
+By default, one can enable 22 of the features existing in the man page out of all 30 features.
+
+```txt
+64bit
+casefold
+dir_index
+dir_nlink
+ea_inode
+encrypt
+extent
+extra_isize
+filetype
+flex_bg
+has_journal
+huge_file
+large_dir
+large_file
+metadata_csum
+orphan_file
+project
+quota
+sparse_super
+stable_inodes
+uninit_bg
+verity
+```
+
+[https://man7.org/linux/man-pages/man5/ext4.5.html](https://man7.org/linux/man-pages/man5/ext4.5.html)
+
 ## Drivers
 
 Setup a target disk for workloads test (Ext4).
@@ -9,7 +38,7 @@ Setup a target disk for workloads test (Ext4).
 dd if=/dev/zero of=ext4_test.img bs=1M count=2048
 
 # format it as Ext4
-mkfs.ext4 ext4_test.img
+mkfs.ext4 ext4_test.img -O 64bit,casefold,dir_index,dir_nlink,ea_inode,encrypt,extent,extra_isize,filetype,flex_bg,has_journal,huge_file,large_dir,large_file,metadata_csum,orphan_file,project,quota,sparse_super,stable_inodes,uninit_bg,verity
 
 # make a mount point
 mkdir /mnt/ext4test
