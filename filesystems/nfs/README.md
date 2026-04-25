@@ -1,8 +1,34 @@
 # NFS
 
-By default all 12 features are enabled.
+F2fs file system has 24 feature flags. By default, 21 of them are enabled.
 
-[https://man7.org/linux/man-pages/man5/nfs.5.html](https://man7.org/linux/man-pages/man5/nfs.5.html)
+```txt
+01. nfsvers (enabled by default)
+02. recovery (enabled by default)
+03. softreval (enabled by default)
+04. timeo (enabled by default)
+05. retrans (enabled by default)
+06. rsize (enabled by default)
+07. wsize (enabled by default)
+09. ac (enabled by default)
+10. acregmin (enabled by default)
+11. acregmax (enabled by default)
+12. acdirmax (enabled by default)
+13. actimeo (enabled by default)
+14. bg / fg (enabled by default)
+15. nconnect (enabled by default)
+16. rdirplus (enabled by default)
+17. retry (enabled by default)
+18. sec (enabled by default)
+19. sharecache (enabled by default)
+20. resvport (enabled by default)
+21. lookupcache (enabled by default)
+22. fsc
+23. xprtsec
+24. noalignwrite
+```
+
+Reference: [https://man7.org/linux/man-pages/man5/nfs.5.html](https://man7.org/linux/man-pages/man5/nfs.5.html)
 
 ## Drivers
 

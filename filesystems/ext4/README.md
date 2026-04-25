@@ -1,33 +1,41 @@
 # Ext4
 
-By default, one can enable 22 of the features existing in the man page out of all 30 features.
+Ext4 file system has 30 feature flags. By default, 15 of them are enabled.
 
 ```txt
-64bit
-casefold
-dir_index
-dir_nlink
-ea_inode
-encrypt
-extent
-extra_isize
-filetype
-flex_bg
-has_journal
-huge_file
-large_dir
-large_file
-metadata_csum
-orphan_file
-project
-quota
-sparse_super
-stable_inodes
-uninit_bg
-verity
+01. 64bit (enabled by default)
+02. bigalloc [under development]
+03. casefold (enabled by default)
+04. dir_index (enabled by default)
+05. dir_nlink (enabled by default)
+06. ea_inode (enabled by default)
+07. encrypt
+08. ext_attr (enabled by default)
+09. extent
+10. extra_isize (enabled by default)
+11. filetype (enabled by default)
+12. flex_bg (enabled by default)
+13. has_journal (enabled by default)
+14. huge_file (enabled by default)
+15. inline_data [not supported]
+16. journal_dev (enabled by default)
+17. large_dir (enabled by default)
+18. large_file (enabled by default)
+19. metadata_csum
+20. metadata_csum_seed
+21. meta_bg
+22. mmp
+23. orphan_file
+24. project
+25. quota
+26. resize_inode (enabled by default)
+27. sparse_super/2
+28. stable_inodes
+29. uninit_bg
+30. verity
 ```
 
-[https://man7.org/linux/man-pages/man5/ext4.5.html](https://man7.org/linux/man-pages/man5/ext4.5.html)
+Reference: [https://man7.org/linux/man-pages/man5/ext4.5.html](https://man7.org/linux/man-pages/man5/ext4.5.html)
 
 ## Drivers
 
