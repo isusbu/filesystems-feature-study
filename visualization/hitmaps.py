@@ -88,7 +88,49 @@ def plot_non_zero_percentages(results, filesystem="ext4"):
     plt.close()
 
 
+def plot_batched_coverage(files, batch_size=50):
+    os.makedirs(OUTDIR, exist_ok=True)
+    batch_names = []
+    batch_counts = []
+    
+    for i in range(0, len(files), batch_size):
+        batch_files = files[i:i+batch_size]
+        start_idx = i + 1
+        end_idx = min(i + batch_size, len(files))
+        
+        unique_funcs = set()
+        all_funcs = set()
+        for file in batch_files:
+            data = read_file(file)
+            for k, v in data.items():
+                all_funcs.add(k)
+                if v > 0:
+                    unique_funcs.add(k)
+                    
+        batch_names.append(f"{start_idx}-{end_idx}")
+        # Calculate coverage percentage against the total available function list
+        coverage_pct = 100.0 * len(unique_funcs) / len(all_funcs) if all_funcs else 0
+        batch_counts.append(coverage_pct)
+        
+    plt.figure(figsize=(10, 5))
+    plt.bar(batch_names, batch_counts, color='skyblue', edgecolor='black')
+    plt.xlabel("Test Batch")
+    plt.ylabel("Coverage percentage (%)")
+    plt.title("Total File System Function Coverage per Batch")
+    plt.xticks(rotation=45, ha="right")
+    plt.ylim(0, 100)
+    plt.tight_layout()
+        
+    out = os.path.join(OUTDIR, "batched_coverage_summary.png")
+    plt.savefig(out, dpi=200)
+    plt.close()
+
+
 def main(files, filesystem="ext4"):
+    if len(files) > 50:
+        plot_batched_coverage(files)
+        return
+
     os.makedirs(OUTDIR, exist_ok=True)
 
     non_zero_results = {}
