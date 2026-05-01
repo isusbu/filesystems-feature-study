@@ -28,13 +28,26 @@ mkdir -p ${XFS_TESTS_LOGS_DIRECTORY}
 
 # create local.config in xfstests path
 XFSTESTS_PATH="/var/tmp/xfstests-dev-run"
-cat <<EOF > "${XFSTESTS_PATH}/local.config"
+if [ "$FSTYP" == "nfs" ]; then
+    cat <<EOF > "${XFSTESTS_PATH}/local.config"
+export FSTYP=nfs
+export TEST_DEV=127.0.0.1:/srv/nfstest
+export TEST_DIR=/mnt/nfstest
+export SCRATCH_DEV=127.0.0.1:/srv/nfsscratch
+export SCRATCH_MNT=/mnt/nfsscratch
+export NFS_MOUNT_OPTIONS="-o rw,relatime,vers=4.2"
+export MOUNT_OPTIONS="-o rw,relatime,vers=4.2"
+EOF
+else
+# TODO: make this dynamic to check the loop devices available and assign accordingly
+    cat <<EOF > "${XFSTESTS_PATH}/local.config"
 export TEST_DEV=/dev/loop10
 export TEST_DIR=/mnt/${FSTYP}Test
 export SCRATCH_DEV=/dev/loop11
 export SCRATCH_MNT=/mnt/${FSTYP}Scratch
 export FSTYP=$FSTYP
 EOF
+fi
 
 rm -f /tmp/trace_metadata.env
 

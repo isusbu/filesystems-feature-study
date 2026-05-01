@@ -20,18 +20,37 @@ LTTNG_DIR="/home/${USERNAME}/filesystems-feature-study/lttng"
 
 getent group ext4_grp
 
-umount /mnt/${FS}Test # Unmount so we can format
-umount /mnt/${FS}Scratch
+echo ">>> Preparing $FS environment..."
+# Initialize an empty variable for extra flags
+EXTRA_FLAGS=""
 
-echo ">>> Ensuring /dev/loop10 amd 11 are formatted as $FS..."
-if [ "$FS" == "ext4" ]; then
-    # ext4 uses -F (capital) to force formatting a partition
-    mkfs.ext4 -F /dev/loop10
-    mkfs.ext4 -F /dev/loop11
+if [ "$FS" == "nfs" ]; then
+    EXTRA_FLAGS="-nfs"
+    # Force unmount client side to prevent "Stale File Handle"
+    sudo umount -l /mnt/nfstest
+    sudo umount -l /mnt/nfsscratch
+    
+    # "Formatting" NFS = Cleaning the server-side directories
+    sudo rm -rf /srv/nfstest/*
+    sudo rm -rf /srv/nfsscratch/*
+    
+    # Refresh the server
+    sudo exportfs -ra
+    sudo systemctl restart nfs-kernel-server
 else
-    # f2fs and xfs use -f (lowercase)
-    mkfs.${FS} -f /dev/loop10
-    mkfs.${FS} -f /dev/loop11
+    umount /mnt/${FS}Test # Unmount so we can format
+    umount /mnt/${FS}Scratch
+
+    echo ">>> Ensuring /dev/loop10 amd 11 are formatted as $FS..."
+    if [ "$FS" == "ext4" ]; then
+        # ext4 uses -F (capital) to force formatting a partition
+        mkfs.ext4 -F /dev/loop10
+        mkfs.ext4 -F /dev/loop11
+    else
+        # f2fs and xfs use -f (lowercase)
+        mkfs.${FS} -f /dev/loop10
+        mkfs.${FS} -f /dev/loop11
+    fi
 fi
 
 LTTNG_OUTPUT_DIR="${OUTPUT_DIR}/lttng_logs"
@@ -48,7 +67,7 @@ for i in $(seq -f "%03g" $START $END); do
 
     (cd "$PROJECT_DIR" && ./lttng/start.sh "$SESSION")
     
-    (cd "$XFSTESTS_PATH" && sudo -E sg ext4_grp -c "./check $TEST_NAME" | tee "$XFS_TESTS_LOGS_DIRECTORY/${TEST_FOLDER}_${i}.out")
+    (cd "$XFSTESTS_PATH" && sudo -E sg ext4_grp -c "./check $EXTRA_FLAGS $TEST_NAME" | tee "$XFS_TESTS_LOGS_DIRECTORY/${TEST_FOLDER}_${i}.out")
     
     (cd "$PROJECT_DIR" && ./lttng/stop.sh "$SESSION" "xfstests_${TEST_FOLDER}_${i}")
 
@@ -81,3 +100,25 @@ echo ">>> Stopping Tracer..."
 (cd "$PROJECT_DIR" &&./lttng/cleanup.sh "$SESSION")
 
 sudo lttng destroy --all
+
+if [ "$FS" == "nfs" ]; then
+    echo ">>> Cleanup of NFS environment..."
+    cd ~
+    sudo umount -l /mnt/nfstest
+    sudo rm -rf /mnt/nfstest/*
+
+    sudo umount -l /mnt/nfsscratch
+    sudo rm -rf /mnt/nfsscratch/*
+
+    # server cleanup
+#    sudo rm -f /etc/exports.d/nfstest.exports
+ #   sudo rm -f /etc/exports.d/nfsscratch.exports
+  #  sudo exportfs -ra
+  #  sudo systemctl restart nfs-kernel-server
+
+   # sudo rm -rf /srv/nfstest
+   # sudo rm -rf /srv/nfsscratch
+
+fi
+
+echo "all done!"
