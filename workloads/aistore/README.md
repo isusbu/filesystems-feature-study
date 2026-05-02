@@ -1,6 +1,6 @@
 # NVIDIA AIStore
 
-AIStore is a scalable storage for AI applications.
+NVIDIA AIStore (AIS) is well-known within specific, high-performance technical circles—particularly in AI research, data engineering, and High-Performance Computing (HPC)—rather than to the general public. It is highly regarded as a specialized, open-source, lightweight storage stack designed specifically for AI data pipelines
 
 Reference: [https://github.com/NVIDIA/aistore](https://github.com/NVIDIA/aistore)
 
@@ -46,3 +46,8 @@ ais create ais://mybucket
 $ aisloader -bucket=ais://mybucket -duration=10s -numworkers=4 -pctput=100 -cleanup=false
 $ aisloader -bucket=ais://mybucket -duration=10s -numworkers=8 -pctput=50 -cleanup=false
 ```
+
+## Links
+
+- [https://github.com/NVIDIA/aistore/blob/main/docs/getting_started.md](https://github.com/NVIDIA/aistore/blob/main/docs/getting_started.md)
+- [https://github.com/NVIDIA/aistore/blob/main/docs/cli/storage.md](https://github.com/NVIDIA/aistore/blob/main/docs/cli/storage.md)
