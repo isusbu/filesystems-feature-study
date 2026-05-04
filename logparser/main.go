@@ -19,6 +19,7 @@ func main() {
 		filePathFlag     = flag.String("file", "log.txt", "log file path")
 		groupIdFlag      = flag.Int("gid", 1002, "group id to filter logs")
 		workersCountFlag = flag.Int("workers", 5, "number of log parser workers")
+		procnameFlag     = flag.String("procname", "", "process name to filter logs")
 	)
 
 	// parse the flags
@@ -30,7 +31,7 @@ func main() {
 
 	for i := range *workersCountFlag {
 		workers[i] = internal.NewWorker(inputChannel)
-		go workers[i].Start(*groupIdFlag)
+		go workers[i].Start(*groupIdFlag, *procnameFlag)
 
 		log.Printf("start worker %d\n", i)
 	}

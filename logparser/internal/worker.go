@@ -36,7 +36,7 @@ func NewWorker(input chan string) *Worker {
 }
 
 // Start worker main loop.
-func (w *Worker) Start(gid int) {
+func (w *Worker) Start(gid int, procname string) {
 	defer w.wg.Done()
 	w.wg.Add(1)
 
@@ -52,6 +52,11 @@ func (w *Worker) Start(gid int) {
 
 				// skip all lttng procs
 				if strings.Contains(procname, "lttng") {
+					continue
+				}
+
+				// process name must match
+				if procname != "" && procname != match[2] {
 					continue
 				}
 
