@@ -50,7 +50,7 @@ sudo apt-get install -y f2fs-tools
 dd if=/dev/zero of=f2fs_test.img bs=1M count=2048
 
 # format it as F2FS
-mkfs.f2fs f2fs_test.img
+mkfs.f2fs f2fs_test.img -O encrypt,extra_attr,project_quota,inode_checksum,flexible_inline_xattr,quota,inode_crtime,lost_found,verity,sb_checksum,casefold,compression
 
 # make a mount point
 mkdir /mnt/f2fstest

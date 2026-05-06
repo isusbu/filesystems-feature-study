@@ -63,7 +63,7 @@ sudo systemctl restart nfs-kernel-server
 sudo mkdir -p /mnt/nfstest
 
 # mount NFS export
-sudo mount -t nfs -o vers=4 127.0.0.1:/srv/nfstest /mnt/nfstest
+sudo mount -t nfs -o nfsvers=4,softreval,timeo=600,retrans=2,rsize=1048576,wsize=1048576,ac,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,bg,nconnect=16,rdirplus,retry=2,sec=sys,sharecache,resvport,lookupcache=all,fsc,xprtsec=none,noalignwrite 127.0.0.1:/srv/nfstest /mnt/nfstest
 
 # check
 mount | grep nfs
