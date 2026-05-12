@@ -3,10 +3,10 @@
 1.Create a new group and dedicated user for SQLite tracing (GID Tracking).
 
 ```sh
-$ sudo groupadd -g 1002 sqlite_trace
+$ sudo groupadd -g GID sqlite_trace
 $ sudo useradd -m -g sqlite_trace -s /bin/bash sqlite_user
 $ id sqlite_user
-# uid=XXXX(sqlite_user) gid=1002(sqlite_trace) groups=1002(sqlite_trace)
+# uid=XXXX(sqlite_user) gid=GID(sqlite_trace) groups=GRP(sqlite_trace)
 ```
 
 
