@@ -29,3 +29,36 @@ which sqlite3
 sudo -u sqlite_user sqlite3
 ```
 
+# SQLite Benchmark Setup
+sqlite-bench is a db_bench-style benchmark tool for SQLite. It calls SQLite3 library functions directly  to carry out SQLite operations.
+Once SQLite is installed, build sqlite-bench to run benchmark workloads against it:
+
+##  Build sqlite-bench
+
+```bash
+
+git clone https://github.com/ukontainer/sqlite-bench.git
+
+
+# Compile all source files
+cc -Wall -I. -O2 -DNDEBUG -std=c99 -c benchmark.c
+cc -Wall -I. -O2 -DNDEBUG -std=c99 -c histogram.c
+cc -Wall -I. -O2 -DNDEBUG -std=c99 -c main.c
+cc -Wall -I. -O2 -DNDEBUG -std=c99 -c random.c
+cc -Wall -I. -O2 -DNDEBUG -std=c99 -c raw.c
+cc -Wall -I. -O2 -DNDEBUG -std=c99 -c sqlite3.c
+cc -Wall -I. -O2 -DNDEBUG -std=c99 -c util.c
+
+# Link all object files into sqlite-bench binary
+cc benchmark.o histogram.o main.o random.o raw.o sqlite3.o util.o \
+    -o sqlite-bench -lpthread -ldl -lm
+
+# Install to PATH
+sudo mv sqlite-bench /usr/local/bin/
+```
+
+
+
+
+
+
