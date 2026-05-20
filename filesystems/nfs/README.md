@@ -1,34 +1,62 @@
 # NFS
 
-NFS file system has 19 mount options. By default, 12 of them are needed.
+## Options valid for all NFS versions
 
-```txt
-# Common NFS mount options
-01. nfsvers
-02. timeo
-03. retrans
-04. rsize
-05. wsize
-06. sec
-07. lookupcache
-08. ac
-09. acregmin
-10. acregmax
-11. acdirmax
-12. actimeo
-# Optional/advanced NFS options
-13. nconnect
-14. fsc
-15. xprtsec
-16. noalignwrite
-17. rdirplus
-18. sharecache
-19. resvport
-# Mount behavior controls
-20. bg
-21. fg
-22. retry
-```
+| # | Option | Default | Notes |
+|---|---|:---:|---|
+| 01 | `nfsvers=n` / `vers=n` | negotiated | Client tries v4 → v3 → v2; no fixed default |
+| 02 | `soft` / `hard` | hard | `hard`: retries indefinitely on timeout (safer for data) |
+| 03 | `timeo=n` | 600 (TCP) / adaptive (UDP) | Timeout in deciseconds before retry |
+| 04 | `retrans=n` | 2 (TCP) / 3 (UDP) | Number of retries before further recovery |
+| 05 | `rsize=n` | negotiated | Max bytes per READ request; negotiated if unset |
+| 06 | `wsize=n` | negotiated | Max bytes per WRITE request; negotiated if unset |
+| 07 | `ac` / `noac` | ac ✓ | Client caches file attributes; `noac` forces synchronous writes |
+| 08 | `acregmin=n` | 3 s | Min time to cache regular file attributes |
+| 09 | `acregmax=n` | 60 s | Max time to cache regular file attributes |
+| 10 | `acdirmin=n` | 30 s | Min time to cache directory attributes |
+| 11 | `acdirmax=n` | 60 s | Max time to cache directory attributes |
+| 12 | `actimeo=n` | — | Sets acregmin/acregmax/acdirmin/acdirmax all to same value |
+| 13 | `bg` / `fg` | fg ✓ | `fg`: mount failure exits with error; `bg`: retries in background |
+| 14 | `retry=n` | 2 min (fg) / 10000 min (bg) | Minutes to retry mount before giving up |
+| 15 | `sec=flavors` | negotiated | Security: `sys` / `krb5` / `krb5i` / `krb5p` / `none`; negotiated if unset |
+| 16 | `lookupcache=mode` | all ✓ | Directory entry cache: `all` / `pos` / `none` |
+| 17 | `fsc` / `nofsc` | nofsc | Local disk caching via FS-Cache; off by default |
+| 18 | `rdirplus` / `nordirplus` | heuristic ✓ | Uses READDIRPLUS on NFSv3/v4; client decides automatically |
+| 19 | `sharecache` / `nosharecache` | sharecache ✓ | Shared data/attr cache across mounts of the same export |
+| 20 | `resvport` / `noresvport` | resvport ✓ | Uses privileged source port (<1024) |
+| 21 | `nconnect=n` | 1 | Number of TCP connections to server; max 16 (kernel 5.3+) |
+| 22 | `xprtsec=policy` | none (kernel-dependent) | Transport layer security: `none` / `tls` / `mtls` |
+| 23 | `noalignwrite` | off (alignwrite on ✓) | Disables page-boundary alignment of buffered writes |
+| 24 | `intr` / `nointr` | — | **Ignored** since kernel 2.6.25; kept for compatibility only |
+| 25 | `sloppy` | off | Ignores unrecognized mount options (alias for `mount.nfs -s`) |
+| 26 | `local_lock=mechanism` | none | Local-only locking: `none` / `flock` / `posix` / `all` |
+
+## Options for NFS v2 and v3 only
+
+| # | Option | Default | Notes |
+|---|---|:---:|---|
+| 27 | `proto=netid` | negotiated | Transport: `tcp` / `udp` / `tcp6` / `udp6` / `rdma` |
+| 28 | `udp` | — | Alias for `proto=udp` |
+| 29 | `tcp` | — | Alias for `proto=tcp` |
+| 30 | `rdma` | — | Alias for `proto=rdma` |
+| 31 | `port=n` | advertised by rpcbind | NFS service port; 0 = use rpcbind advertisement |
+| 32 | `mountport=n` | advertised by rpcbind | mountd port; 0 = use rpcbind advertisement |
+| 33 | `mountproto=netid` | negotiated | Transport for mountd requests only |
+| 34 | `mounthost=name` | same as NFS server | Hostname running mountd |
+| 35 | `mountvers=n` | version-appropriate | RPC version for mountd contact |
+| 36 | `namlen=n` | negotiated | Max pathname component length; usually 255 |
+| 37 | `lock` / `nolock` | lock ✓ | NLM sideband locking; `nolock` for servers without NLM |
+| 38 | `cto` / `nocto` | cto ✓ | Close-to-open cache coherence semantics |
+| 39 | `acl` / `noacl` | negotiated ✓ | NFSACL sideband protocol (Solaris-compat); negotiated if unset |
+
+## Options for NFS v4 only
+
+| # | Option | Default | Notes |
+|---|---|:---:|---|
+| 40 | `proto=netid` | tcp | Transport: `tcp` / `tcp6` / `rdma`; UDP not supported |
+| 41 | `port=n` | 2049 | Standard NFS v4 port |
+| 42 | `clientaddr=%s` | autodetected | IPv4/IPv6 address for NFSv4 callback; auto-detected if unset |
+| 43 | `migration` / `nomigration` | nomigration ✓ | TSM-compatible client ID string for transparent state migration |
 
 Reference: [https://man7.org/linux/man-pages/man5/nfs.5.html](https://man7.org/linux/man-pages/man5/nfs.5.html)
 
