@@ -1,39 +1,37 @@
 # Ext4
 
-Ext4 file system has 30 feature flags. By default, 15 of them are enabled.
-
-```txt
-01. 64bit (enabled by default)
-02. bigalloc [under development]
-03. casefold (enabled by default)
-04. dir_index (enabled by default)
-05. dir_nlink (enabled by default)
-06. ea_inode (enabled by default)
-07. encrypt
-08. ext_attr (enabled by default)
-09. extent
-10. extra_isize (enabled by default)
-11. filetype (enabled by default)
-12. flex_bg (enabled by default)
-13. has_journal (enabled by default)
-14. huge_file (enabled by default)
-15. inline_data [not supported]
-16. journal_dev (enabled by default)
-17. large_dir (enabled by default)
-18. large_file (enabled by default)
-19. metadata_csum
-20. metadata_csum_seed
-21. meta_bg
-22. mmp
-23. orphan_file
-24. project
-25. quota
-26. resize_inode (enabled by default)
-27. sparse_super/2
-28. stable_inodes
-29. uninit_bg
-30. verity
-```
+| # | Feature flag | Status | Default |
+|---|---|---|:---:|
+| 01 | `64bit` | enabled by default | ✓ |
+| 02 | `bigalloc` | under development | — |
+| 03 | `casefold` | disabled by default | — |
+| 04 | `dir_index` | enabled by default | ✓ |
+| 05 | `dir_nlink` | enabled by default | ✓ |
+| 06 | `ea_inode` | disabled by default | — |
+| 07 | `encrypt` | disabled by default | — |
+| 08 | `ext_attr` | enabled by default | ✓ |
+| 09 | `extent` | enabled by default | ✓ |
+| 10 | `extra_isize` | enabled by default | ✓ |
+| 11 | `filetype` | enabled by default | ✓ |
+| 12 | `flex_bg` | enabled by default | ✓ |
+| 13 | `has_journal` | enabled by default | ✓ |
+| 14 | `huge_file` | enabled by default | ✓ |
+| 15 | `inline_data` | not supported / experimental | — |
+| 16 | `journal_dev` | special-purpose | — |
+| 17 | `large_dir` | disabled by default | — |
+| 18 | `large_file` | enabled by default | ✓ |
+| 19 | `metadata_csum` | enabled by default | ✓ |
+| 20 | `metadata_csum_seed` | disabled by default | — |
+| 21 | `meta_bg` | disabled by default | — |
+| 22 | `mmp` | disabled by default | — |
+| 23 | `orphan_file` | disabled by default | — |
+| 24 | `project` | disabled by default | — |
+| 25 | `quota` | disabled by default | — |
+| 26 | `resize_inode` | enabled by default | ✓ |
+| 27 | `sparse_super` | enabled by default | ✓ |
+| 28 | `sparse_super2` | disabled by default | — |
+| 29 | `stable_inodes` | disabled by default | — |
+| 30 | `uninit_bg` | disabled by default | — |
 
 Reference: [https://man7.org/linux/man-pages/man5/ext4.5.html](https://man7.org/linux/man-pages/man5/ext4.5.html)
 
