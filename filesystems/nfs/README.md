@@ -60,6 +60,72 @@
 
 Reference: [https://man7.org/linux/man-pages/man5/nfs.5.html](https://man7.org/linux/man-pages/man5/nfs.5.html)
 
+## NFS mount option requirements
+
+### Options valid for all NFS versions
+
+| # | Option | Default | SQLite | Redis | AIStore |
+|---|---|:---:|:---:|:---:|:---:|
+| 01 | `nfsvers=n` / `vers=n` | negotiated | — | — | — |
+| 02 | `soft` / `hard` | hard | ✓ | ✓ | ✓ |
+| 03 | `timeo=n` | 600 (TCP) | ✓ | ✓ | ✓ |
+| 04 | `retrans=n` | 2 (TCP) | ✓ | ✓ | ✓ |
+| 05 | `rsize=n` | negotiated | — | — | ✓ |
+| 06 | `wsize=n` | negotiated | — | ✓ | ✓ |
+| 07 | `ac` / `noac` | ac | ✓ | ✓ | ✓ |
+| 08 | `acregmin=n` | 3 s | — | — | — |
+| 09 | `acregmax=n` | 60 s | — | — | — |
+| 10 | `acdirmin=n` | 30 s | — | — | — |
+| 11 | `acdirmax=n` | 60 s | — | — | — |
+| 12 | `actimeo=n` | — | — | — | — |
+| 13 | `bg` / `fg` | fg | — | — | — |
+| 14 | `retry=n` | 2 min (fg) | — | — | — |
+| 15 | `sec=flavors` | negotiated | — | — | — |
+| 16 | `lookupcache=mode` | all | — | — | — |
+| 17 | `fsc` / `nofsc` | nofsc | — | — | — |
+| 18 | `rdirplus` / `nordirplus` | heuristic | — | — | ✓ |
+| 19 | `sharecache` / `nosharecache` | sharecache | — | — | — |
+| 20 | `resvport` / `noresvport` | resvport | — | — | — |
+| 21 | `nconnect=n` | 1 | — | — | ✓ |
+| 22 | `xprtsec=policy` | none | — | — | — |
+| 23 | `noalignwrite` | off | — | — | — |
+| 24 | `intr` / `nointr` | — | — | — | — |
+| 25 | `sloppy` | off | — | — | — |
+| 26 | `local_lock=mechanism` | none | — | — | — |
+
+### Options for NFS v2 and v3 only
+
+| # | Option | Default | SQLite | Redis | AIStore |
+|---|---|:---:|:---:|:---:|:---:|
+| 27 | `proto=netid` | negotiated | — | — | — |
+| 28 | `udp` | — | — | — | — |
+| 29 | `tcp` | — | — | — | — |
+| 30 | `rdma` | — | — | — | — |
+| 31 | `port=n` | rpcbind | — | — | — |
+| 32 | `mountport=n` | rpcbind | — | — | — |
+| 33 | `mountproto=netid` | negotiated | — | — | — |
+| 34 | `mounthost=name` | server host | — | — | — |
+| 35 | `mountvers=n` | negotiated | — | — | — |
+| 36 | `namlen=n` | negotiated | — | — | — |
+| 37 | `lock` / `nolock` | lock | ✓ | — | — |
+| 38 | `cto` / `nocto` | cto | ✓ | — | — |
+| 39 | `acl` / `noacl` | negotiated | — | — | — |
+
+### Options for NFS v4 only
+
+| # | Option | Default | SQLite | Redis | AIStore |
+|---|---|:---:|:---:|:---:|:---:|
+| 40 | `proto=netid` | tcp | — | — | — |
+| 41 | `port=n` | 2049 | — | — | — |
+| 42 | `clientaddr=%s` | autodetected | — | — | — |
+| 43 | `migration` / `nomigration` | nomigration | — | — | — |
+
+### Summary
+
+| | SQLite | Redis | AIStore |
+|---|:---:|:---:|:---:|
+| **Minimum options required** | **6** | **5** | **8** |
+
 ## Drivers
 
 Setup a target disk for workloads test (NFS).
