@@ -60,6 +60,65 @@
 
 Reference: [https://www.kernel.org/doc/Documentation/filesystems/f2fs.txt](https://www.kernel.org/doc/Documentation/filesystems/f2fs.txt)
 
+| # | Mount option | Default | SQLite | Redis | AIStore |
+|---|---|:---:|:---:|:---:|:---:|
+| 01 | `background_gc=%s` | on | ✓ | ✓ | ✓ |
+| 02 | `gc_merge` | off | — | — | — |
+| 03 | `nogc_merge` | — | — | — | — |
+| 04 | `disable_roll_forward` | off | — | — | — |
+| 05 | `norecovery` | off | — | — | — |
+| 06 | `discard` | on | ✓ | ✓ | ✓ |
+| 07 | `heap / no_heap` | deprecated | — | — | — |
+| 08 | `nouser_xattr` | off | — | — | — |
+| 09 | `noacl` | off | — | — | — |
+| 10 | `active_logs=%u` | 6 | — | — | — |
+| 11 | `disable_ext_identify` | off | — | — | — |
+| 12 | `inline_xattr` | on | — | — | ✓ |
+| 13 | `noinline_xattr` | — | — | — | — |
+| 14 | `inline_xattr_size=%u` | — | — | — | — |
+| 15 | `inline_data` | on | — | — | ✓ |
+| 16 | `noinline_data` | — | — | — | — |
+| 17 | `inline_dentry` | on | — | — | — |
+| 18 | `noinline_dentry` | — | — | — | — |
+| 19 | `flush_merge` | off | — | — | — |
+| 20 | `nobarrier` | off | — | — | — |
+| 21 | `barrier` | on | — | — | — |
+| 22 | `fastboot` | off | — | — | — |
+| 23 | `extent_cache` | on | ✓ | ✓ | ✓ |
+| 24 | `noextent_cache` | — | — | — | — |
+| 25 | `data_flush` | off | — | — | — |
+| 26 | `reserve_root=%d` | 12.5% | — | — | — |
+| 27 | `fault_injection=%d` | off | — | — | — |
+| 28 | `fault_type=%d` | — | — | — | — |
+| 29 | `mode=%s` | adaptive | — | — | — |
+| 30 | `usrquota` | off | — | — | — |
+| 31 | `grpquota` | off | — | — | — |
+| 32 | `prjquota` | off | — | — | — |
+| 33 | `quota` | off | — | — | — |
+| 34 | `noquota` | — | — | — | — |
+| 35 | `whint_mode=%s` | off | — | — | — |
+| 36 | `alloc_mode=%s` | default | — | — | — |
+| 37 | `fsync_mode=%s` | posix | ✓ | ✓ | ✓ |
+| 38 | `test_dummy_encryption[=%s]` | off | — | — | — |
+| 39 | `checkpoint=%s[:%u[%]]` | enable | — | — | — |
+| 40 | `checkpoint_merge` | off | — | — | — |
+| 41 | `nocheckpoint_merge` | — | — | — | — |
+| 42 | `compress_algorithm=%s[:%d]` | lzo | — | — | ✓ |
+| 43 | `compress_log_size=%u` | 2 | — | — | — |
+| 44 | `compress_extension=%s` | — | — | — | — |
+| 45 | `nocompress_extension=%s` | — | — | — | — |
+| 46 | `compress_chksum` | off | — | — | — |
+| 47 | `compress_mode=%s` | fs | — | — | — |
+| 48 | `compress_cache` | off | — | — | — |
+| 49 | `inlinecrypt` | off | — | — | — |
+| 50 | `atgc` | off | — | — | ✓ |
+| 51 | `age_extent_cache` | off | — | — | — |
+| 52 | `noage_extent_cache` | — | — | — | — |
+| 53 | `discard_unit=%s` | block | — | — | — |
+| 54 | `memory=%s` | normal | — | — | — |
+| 55 | `io_bits=%u` | — | — | — | — |
+| | **Minimum required** | | **4** | **4** | **7** |
+
 ## Drivers
 
 Setup a target disk for workloads test (F2FS).
