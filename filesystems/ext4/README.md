@@ -35,10 +35,6 @@
 
 Reference: [https://man7.org/linux/man-pages/man5/ext4.5.html](https://man7.org/linux/man-pages/man5/ext4.5.html)
 
-## Storage Usage
-
-# Ext4 feature flag requirements
-
 | # | Feature flag | Default | SQLite | Redis | AIStore |
 |---|---|:---:|:---:|:---:|:---:|
 | 01 | `64bit` | ✓ | — | — | ✓ |
