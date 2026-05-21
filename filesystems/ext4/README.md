@@ -35,6 +35,44 @@
 
 Reference: [https://man7.org/linux/man-pages/man5/ext4.5.html](https://man7.org/linux/man-pages/man5/ext4.5.html)
 
+## Storage Usage
+
+# Ext4 feature flag requirements
+
+| # | Feature flag | Default | SQLite | Redis | AIStore |
+|---|---|:---:|:---:|:---:|:---:|
+| 01 | `64bit` | ✓ | — | — | ✓ |
+| 02 | `bigalloc` | — | — | — | — |
+| 03 | `casefold` | — | — | — | — |
+| 04 | `dir_index` | ✓ | ✓ | ✓ | ✓ |
+| 05 | `dir_nlink` | ✓ | — | — | — |
+| 06 | `ea_inode` | — | — | — | — |
+| 07 | `encrypt` | — | — | — | — |
+| 08 | `ext_attr` | ✓ | — | — | ✓ |
+| 09 | `extent` | ✓ | ✓ | ✓ | ✓ |
+| 10 | `extra_isize` | ✓ | ✓ | ✓ | ✓ |
+| 11 | `filetype` | ✓ | ✓ | ✓ | ✓ |
+| 12 | `flex_bg` | ✓ | — | — | — |
+| 13 | `has_journal` | ✓ | ✓ | ✓ | ✓ |
+| 14 | `huge_file` | ✓ | — | — | ✓ |
+| 15 | `inline_data` | experimental | — | — | — |
+| 16 | `journal_dev` | special-purpose | — | — | — |
+| 17 | `large_dir` | — | — | — | — |
+| 18 | `large_file` | ✓ | ✓ | ✓ | ✓ |
+| 19 | `metadata_csum` | ✓ | — | — | — |
+| 20 | `metadata_csum_seed` | — | — | — | — |
+| 21 | `meta_bg` | — | — | — | — |
+| 22 | `mmp` | — | — | — | — |
+| 23 | `orphan_file` | — | — | — | — |
+| 24 | `project` | — | — | — | — |
+| 25 | `quota` | — | — | — | — |
+| 26 | `resize_inode` | ✓ | — | — | — |
+| 27 | `sparse_super` | ✓ | — | — | — |
+| 28 | `sparse_super2` | — | — | — | — |
+| 29 | `stable_inodes` | — | — | — | — |
+| 30 | `uninit_bg` | — | — | — | — |
+| | **Minimum required** | | **5** | **5** | **8** |
+
 ## Drivers
 
 Setup a target disk for workloads test (Ext4).
