@@ -41,3 +41,4 @@ main
 
 # Custom ignore patterns
 file-system-paper-data/
+dataset/
