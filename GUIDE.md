@@ -35,29 +35,30 @@ Finally, execute `fio` workload:
 fio --directory=/mnt/sdb/encrypt ...
 ```
 
-## large\_file
+## extent
 
-This feature cannot be disabled.
+To enable this feature, run:
 
 ```sh
+sudo mkfs.ext4 -O ^extent,^64bit /dev/sdb
+
 # mount to a point
 sudo mkdir /mnt/sdb
 sudo mount /dev/sdb /mnt/sdb
 
 # validate
-sudo tune2fs -l $(findmnt -n -o SOURCE --target /mnt/sdb) | grep large_file
+sudo tune2fs -l $(findmnt -n -o SOURCE --target /mnt/sdb) | grep extent
 ```
 
 Create a target directory:
 
 ```sh
-sudo mkdir /mnt/sdb/lf
-sudo chown -R $USER:$(id -gn) /mnt/sdb/lf
+sudo mkdir /mnt/sdb/text
+sudo chown -R $USER:$(id -gn) /mnt/sdb/text
 ```
 
 Finally, execute `fio` workload:
 
 ```sh
-fio --section=ext4_regular_file --directory=/mnt/sdb/lf ...
-fio --section=ext4_large_file --directory=/mnt/sdb/lf ...
+fio --directory=/mnt/sdb/test ...
 ```
