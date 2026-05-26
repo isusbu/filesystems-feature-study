@@ -37,11 +37,9 @@ fio --directory=/mnt/sdb/encrypt ...
 
 ## large\_file
 
-To disable this feature, run:
+This feature cannot be disabled.
 
 ```sh
-sudo mkfs.ext4 -O ^large_file /dev/sdb
-
 # mount to a point
 sudo mkdir /mnt/sdb
 sudo mount /dev/sdb /mnt/sdb
@@ -60,5 +58,6 @@ sudo chown -R $USER:$(id -gn) /mnt/sdb/lf
 Finally, execute `fio` workload:
 
 ```sh
-fio --directory=/mnt/sdb/lf ...
+fio --section=ext4_regular_file --directory=/mnt/sdb/lf ...
+fio --section=ext4_large_file --directory=/mnt/sdb/lf ...
 ```
