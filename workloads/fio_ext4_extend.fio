@@ -1,0 +1,15 @@
+[global]
+ioengine=libaio
+direct=0
+rw=write
+bs=1M
+iodepth=16
+numjobs=1
+group_reporting
+create_on_open=1
+unlink=0
+fsync_on_close=1
+
+[extent_test]
+filename=extent_test.dat
+size=4G
