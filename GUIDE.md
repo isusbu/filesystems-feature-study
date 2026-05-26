@@ -60,5 +60,5 @@ sudo chown -R $USER:$(id -gn) /mnt/sdb/text
 Finally, execute `fio` workload:
 
 ```sh
-fio --directory=/mnt/sdb/test ...
+fio --directory=/mnt/sdb/text ...
 ```
