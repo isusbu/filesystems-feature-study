@@ -40,7 +40,7 @@ fio --directory=/mnt/sdb/encrypt ...
 To disable this feature, run:
 
 ```sh
-sudo mkfs.ext4 -O ^large_file
+sudo mkfs.ext4 -O ^large_file /dev/sdb
 
 # mount to a point
 sudo mkdir /mnt/sdb
