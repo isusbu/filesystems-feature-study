@@ -8,7 +8,6 @@
 #  number  abi     x86 name  handler
 # So for every handler whose name differs from its x86_64 name, we emit
 #     #define SYS_<handler> SYS_<x86 name>        e.g.  #define SYS_newstat SYS_stat
-# Nothing is typed by hand; the mapping comes only from the table.
 #
 # Run on the VM (needs the janus2 container, which has the LKL kernel source):
 #     sudo bash gen_syscall_map.sh [WORKDIR]          (default WORKDIR=/srv/janus_replay)
