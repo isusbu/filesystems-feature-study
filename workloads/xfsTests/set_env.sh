@@ -2,9 +2,9 @@
 
 # input about configurations and tests
 while true; do
-    read -p "Enter Filesystem (ext4, nfs, f2fs): " FSTYP
+    read -p "Enter Filesystem (ext4, nfs, f2fs, btrfs): " FSTYP
     FSTYP=$(echo "$FSTYP" | tr '[:upper:]' '[:lower:]')
-    [[ "$FSTYP" =~ ^(ext4|nfs|f2fs)$ ]] && break || echo "Invalid FS."
+    [[ "$FSTYP" =~ ^(ext4|nfs|f2fs|btrfs)$ ]] && break || echo "Invalid FS."
 done
 
 # xfs requirements
