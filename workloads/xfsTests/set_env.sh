@@ -39,11 +39,24 @@ export NFS_MOUNT_OPTIONS="-o rw,relatime,vers=4.2"
 export MOUNT_OPTIONS="-o rw,relatime,vers=4.2"
 EOF
 else
-# TODO: make this dynamic to check the loop devices available and assign accordingly
+    # Back TEST/SCRATCH with our own image files on local disk and attach them to FREE loop devices.
+    # (Hard-coded /dev/loop10/11 can belong to snapd on this VM; formatting them would damage snaps.)
+    IMG_DIR=${IMG_DIR:-/srv/xfstests_imgs}
+    IMG_SIZE=${IMG_SIZE:-6G}
+    mkdir -p "$IMG_DIR" /mnt/${FSTYP}Test /mnt/${FSTYP}Scratch
+    for role in test scratch; do
+        img="$IMG_DIR/${FSTYP}_${role}.img"
+        [ -f "$img" ] || truncate -s "$IMG_SIZE" "$img"          # sparse: uses disk only as written
+        dev=$(losetup -j "$img" | cut -d: -f1 | head -1)          # reuse if already attached
+        [ -n "$dev" ] || dev=$(losetup -f --show "$img")
+        [ -n "$dev" ] || { echo "ERROR: could not attach $img to a loop device"; exit 1; }
+        if [ "$role" = test ]; then TEST_LOOP=$dev; else SCRATCH_LOOP=$dev; fi
+    done
+    echo "TEST_DEV=$TEST_LOOP  SCRATCH_DEV=$SCRATCH_LOOP  (images in $IMG_DIR)"
     cat <<EOF > "${XFSTESTS_PATH}/local.config"
-export TEST_DEV=/dev/loop10
+export TEST_DEV=$TEST_LOOP
 export TEST_DIR=/mnt/${FSTYP}Test
-export SCRATCH_DEV=/dev/loop11
+export SCRATCH_DEV=$SCRATCH_LOOP
 export SCRATCH_MNT=/mnt/${FSTYP}Scratch
 export FSTYP=$FSTYP
 EOF
@@ -62,6 +75,8 @@ GPFS_BUCKET=$GPFS_BUCKET
 OUTPUT_DIR=$LOG_DIRECTORY
 SESSION="fs_${FSTYP}_tests_${TEST_FOLDER}_${START}_${END}_${DATE_AND_TIME}"
 XFS_TESTS_LOGS_DIRECTORY=${XFS_TESTS_LOGS_DIRECTORY}
+TEST_LOOP=${TEST_LOOP:-}
+SCRATCH_LOOP=${SCRATCH_LOOP:-}
 EOF
 
 echo "Setup Complete. Metadata saved to /tmp/trace_metadata.env"
