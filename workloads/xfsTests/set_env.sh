@@ -53,13 +53,34 @@ else
         if [ "$role" = test ]; then TEST_LOOP=$dev; else SCRATCH_LOOP=$dev; fi
     done
     echo "TEST_DEV=$TEST_LOOP  SCRATCH_DEV=$SCRATCH_LOOP  (images in $IMG_DIR)"
-    cat <<EOF > "${XFSTESTS_PATH}/local.config"
-export TEST_DEV=$TEST_LOOP
-export TEST_DIR=/mnt/${FSTYP}Test
-export SCRATCH_DEV=$SCRATCH_LOOP
-export SCRATCH_MNT=/mnt/${FSTYP}Scratch
-export FSTYP=$FSTYP
-EOF
+
+    # Multi-device tests (btrfs RAID, device add/remove/replace, balance) need SCRATCH_DEV_POOL.
+    # xfstests uses the FIRST pool device as SCRATCH_DEV and requires SCRATCH_DEV itself to be unset.
+    # POOL_EXTRA extra images are added after the scratch image (default 4 for btrfs -> pool of 5; 0 = no pool).
+    if [ "$FSTYP" == "btrfs" ]; then POOL_EXTRA=${POOL_EXTRA:-4}; else POOL_EXTRA=${POOL_EXTRA:-0}; fi
+    POOL="$SCRATCH_LOOP"
+    for i in $(seq 1 "$POOL_EXTRA"); do
+        img="$IMG_DIR/${FSTYP}_pool${i}.img"
+        [ -f "$img" ] || truncate -s "$IMG_SIZE" "$img"
+        dev=$(losetup -j "$img" | cut -d: -f1 | head -1)
+        [ -n "$dev" ] || dev=$(losetup -f --show "$img")
+        [ -n "$dev" ] || { echo "ERROR: could not attach $img"; exit 1; }
+        POOL="$POOL $dev"
+    done
+
+    {
+        echo "export TEST_DEV=$TEST_LOOP"
+        echo "export TEST_DIR=/mnt/${FSTYP}Test"
+        if [ "$POOL_EXTRA" -gt 0 ]; then
+            echo "export SCRATCH_DEV_POOL=\"$POOL\""
+            echo "SCRATCH_DEV_POOL=$POOL" >&2
+        else
+            echo "export SCRATCH_DEV=$SCRATCH_LOOP"
+        fi
+        echo "export SCRATCH_MNT=/mnt/${FSTYP}Scratch"
+        echo "export FSTYP=$FSTYP"
+    } > "${XFSTESTS_PATH}/local.config"
+    echo "free disk for images: $(df -h --output=avail "$IMG_DIR" | tail -1) (images are sparse; heavy tests fill them)"
 fi
 
 rm -f /tmp/trace_metadata.env
