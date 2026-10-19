@@ -2,7 +2,7 @@
 # host_replay.sh - replay Janus inputs on the REAL kernel and count which btrfs functions run.
 #
 # Run on the VM (not inside the container), as root:
-#     sudo bash ~/sravya/replay/host_replay.sh [N]      # N = how many queue inputs (default 20)
+#     sudo bash workloads/janus/lkl_cov/host_replay.sh [N]      # N = how many queue inputs (default 20)
 #
 # Layout (the folder this script lives in, bind-mounted into container 'janus2' at /replay):
 #     queue/              Janus queue files (copied from SeaWulf)

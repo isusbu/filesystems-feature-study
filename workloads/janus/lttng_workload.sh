@@ -1,35 +1,44 @@
 #!/bin/bash
-# lttng_workload.sh - Janus inputs as a WORKLOAD for the existing filesystems-feature-study LTTng setup.
-# It does no tracing itself: run it between lttng/start.sh and lttng/stop.sh.
-# Every mount / program / unmount runs with group ext4_grp (GID 1002), which init.sh tracks.
+# Replay Janus inputs (or its seed programs) on the real kernel as an LTTng workload.
+# Run between lttng/start.sh and lttng/stop.sh. mount, the program and umount run as
+# group ext4_grp, which init.sh tracks.
 #
-#   sudo bash lttng_workload.sh --mode baseline --session btrfs-session-base
-#   sudo bash lttng_workload.sh --mode janus --count 100 --start 0 --pause 10 --session btrfs-session-b1
+#   sudo bash lttng_workload.sh --mode janus --fs ext4 --seed ext4-00.image \
+#        --queue /srv/janus_replay/fuzz_out_ext4_00/ext4_00/queue --from-min 0 --to-min 30 \
+#        --count 500 --pause 3 --container janus-ext4 --session ext4-session-test
 #
-# Options:
-#   --mode baseline|janus   baseline = 9 seed programs on the unmodified image; janus = queue inputs
-#   --count N               janus: how many queue inputs to replay (default 20)
-#   --start K               janus: skip the first K inputs (for batches: 0, 100, 200, ...) (default 0)
-#   --pause S               seconds to wait between inputs, lets LTTng flush buffers (default 2)
-#   --session NAME          LTTng session to verify after 3 inputs (active, kernel domain, channel0);
-#                           aborts early if it is not recording. Optional but recommended.
-#   --container NAME        Docker container used to decode inputs (default janus2)
-#   --group NAME            group tracked by LTTng (default ext4_grp)
-#   --workdir DIR           data folder, bind-mounted into the container at /replay (default /srv/janus_replay)
-#   -h, --help              show this help
+#   --mode baseline|janus    seed programs on the clean seed image, or queue inputs
+#   --fs btrfs|ext4          mount type and Janus decoder (default btrfs)
+#   --seed FILE              seed image in samples/evaluation/ (default <fs>-00.image)
+#   --queue DIR              queue folder inside --workdir (default <workdir>/queue)
+#   --prog DIR               baseline seed programs, path inside the container
+#   --from-min/--to-min N    only inputs found in this minute range of the fuzzing run
+#   --count N, --start K     replay at most N selected inputs, skipping the first K
+#   --pause S                wait after an input that mounted (default 2)
+#   --pause-rejected S       wait after a rejected mount (default = --pause)
+#   --session NAME           after 3 inputs, abort unless this LTTng session is recording
+#   --container, --group, --workdir   defaults: janus2, ext4_grp, /srv/janus_replay
 #
-# Expects in the workdir: queue/ and syscall_compat.h (from gen_syscall_map.sh).
-# Compile errors are saved to <workdir>/compile_errors/<id>.txt
+# Skips orig: (seed copies) and sync: (imported) queue entries. Needs <workdir>/syscall_compat.h
+# from gen_syscall_map.sh; compile errors go to <workdir>/compile_errors/.
 set -u
 die() { echo "ERROR: $*"; exit 1; }
-usage() { sed -n '2,25p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
-MODE=baseline; N=20; START=0; PAUSE=2; SESSION=""; C=janus2; GRP=ext4_grp; R=/srv/janus_replay
+usage() { sed -n '2,23p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+MODE=baseline; FS=btrfs; SEED=""; Q=""; PROG=""; FROM=""; TO=""
+N=20; START=0; PAUSE=2; PAUSE_REJ=""; SESSION=""; C=janus2; GRP=ext4_grp; R=/srv/janus_replay
 while [ $# -gt 0 ]; do
   case "$1" in
     --mode)      MODE=$2; shift 2 ;;
+    --fs)        FS=$2; shift 2 ;;
+    --seed)      SEED=$2; shift 2 ;;
+    --queue)     Q=$2; shift 2 ;;
+    --prog)      PROG=$2; shift 2 ;;
+    --from-min)  FROM=$2; shift 2 ;;
+    --to-min)    TO=$2; shift 2 ;;
     --count)     N=$2; shift 2 ;;
     --start)     START=$2; shift 2 ;;
     --pause)     PAUSE=$2; shift 2 ;;
+    --pause-rejected) PAUSE_REJ=$2; shift 2 ;;
     --session)   SESSION=$2; shift 2 ;;
     --container) C=$2; shift 2 ;;
     --group)     GRP=$2; shift 2 ;;
@@ -39,16 +48,23 @@ while [ $# -gt 0 ]; do
   esac
 done
 case "$MODE" in baseline|janus) ;; *) die "--mode must be baseline or janus" ;; esac
-for v in "$N" "$START" "$PAUSE"; do [[ "$v" =~ ^[0-9]+$ ]] || die "--count/--start/--pause must be whole numbers"; done
+case "$FS" in btrfs|ext4) ;; *) die "--fs must be btrfs or ext4" ;; esac
+for v in "$N" "$START" "$PAUSE" ${FROM:+"$FROM"} ${TO:+"$TO"}; do [[ "$v" =~ ^[0-9]+$ ]] || die "numbers must be whole numbers"; done
 [ -d "$R" ] || die "workdir $R does not exist"
+R=$(readlink -f "$R")
+[ -n "$PAUSE_REJ" ] || PAUSE_REJ=$PAUSE
+[[ "$PAUSE_REJ" =~ ^[0-9]+$ ]] || die "--pause-rejected must be a whole number"
+[ -n "$SEED" ] || SEED="${FS}-00.image"
+[ -n "$Q" ] || Q="$R/queue"
+[ -n "$PROG" ] || { [ "$FS" = btrfs ] && PROG=prog || PROG=/replay/prog_ext4_00; }
 MNT=$R/mnt
-echo "mode=$MODE count=$N start=$START pause=${PAUSE}s session=${SESSION:-none} container=$C group=$GRP workdir=$R"
+echo "mode=$MODE fs=$FS seed=$SEED pause=${PAUSE}s session=${SESSION:-none} container=$C group=$GRP workdir=$R"
 [ "$(id -u)" = 0 ] || die "run with sudo"
 getent group "$GRP" >/dev/null || die "group $GRP missing"
 [ "$(docker inspect -f '{{.State.Running}}' $C 2>/dev/null)" = true ] || die "container $C not running"
 [ -f "$R/syscall_compat.h" ] || die "missing $R/syscall_compat.h - run gen_syscall_map.sh first"
-mkdir -p "$MNT" "$R/seeds" "$R/compile_errors"
-modprobe btrfs
+mkdir -p "$MNT" "$R/seeds_$FS" "$R/compile_errors"
+modprobe "$FS" 2>/dev/null
 
 check_recording() {   # abort early instead of finding an empty trace hours later
   [ -n "$SESSION" ] || return 0
@@ -68,33 +84,54 @@ run_one() {   # $1 image  $2 C program  $3 id
     echo "compile-failed"; return; fi
   rm -f "$R/compile_errors/$3.txt"
   loop=$(losetup -f --show "$1") || { echo "no-loop-device"; return; }
-  if timeout 30 sudo -g "$GRP" mount -t btrfs "$loop" "$MNT" 2>/dev/null; then
+  if timeout 30 sudo -g "$GRP" mount -t "$FS" "$loop" "$MNT" 2>/dev/null; then
     (cd "$MNT" && timeout 30 sudo -g "$GRP" "$R/cur_prog" >/dev/null 2>&1); rc=$?
     timeout 30 sudo -g "$GRP" umount "$MNT" 2>/dev/null || umount -l "$MNT"
     echo "mounted prog_exit=$rc"
+    losetup -d "$loop" 2>/dev/null; sync; sleep "$PAUSE"
   else
     echo "mount-rejected"
+    losetup -d "$loop" 2>/dev/null; sync; sleep "$PAUSE_REJ"   # rejected mounts do little work
   fi
-  losetup -d "$loop" 2>/dev/null
-  sync; sleep "$PAUSE"
 }
 
 count=0
 if [ "$MODE" = baseline ]; then
-  docker exec $C bash -c 'cd /usr/src/janus && for p in prog/*; do ./core/program_show $p > /replay/seeds/$(basename $p).c; done; cp samples/evaluation/btrfs-00.image /replay/seed.orig' || die "seed export failed"
-  for c in "$R"/seeds/*.c; do
-    cp "$R/seed.orig" "$R/cur.img"
+  rm -f "$R/seeds_$FS"/*.c
+  docker exec $C bash -c "cd /usr/src/janus && for p in $PROG/*; do ./core/program_show \$p > /replay/seeds_$FS/\$(basename \$p).c; done; cp samples/evaluation/$SEED /replay/seed_$FS.orig" \
+    || die "seed export failed"
+  for c in "$R/seeds_$FS"/*.c; do
+    cp "$R/seed_$FS.orig" "$R/cur.img"
     n=$(basename "$c" .c)
     echo "  $n: $(run_one "$R/cur.img" "$c" "$n")"
     count=$((count+1)); [ $count = 3 ] && check_recording
   done
 else
-  [ -d "$R/queue" ] || die "no queue folder at $R/queue"
-  # skip ',orig:' entries: those are just copies of the 9 seed programs (already in the baseline)
-  for f in $(ls "$R/queue" | grep '^id:' | grep -v ',orig:' | sort | tail -n +$((START+1)) | head -n "$N"); do
+  Q=$(readlink -f "$Q")
+  [ -d "$Q" ] || die "no queue folder at $Q"
+  case "$Q" in "$R"/*) ;; *) die "--queue must be inside --workdir ($R) so the container can see it" ;; esac
+  QC="/replay${Q#$R}"                            # same folder as seen inside the container
+  STATS="$(dirname "$Q")/fuzzer_stats"
+  T0=""
+  if [ -n "$FROM$TO" ]; then
+    [ -f "$STATS" ] || die "time window needs $STATS"
+    T0=$(awk -F: '/^start_time/ {gsub(/ /,"",$2); print $2}' "$STATS")
+    echo "fuzzing started at $(date -d @"$T0"); window ${FROM:-0}-${TO:-end} min"
+  fi
+  sel=()
+  for f in $(ls "$Q" | grep '^id:' | grep -v -e ',orig:' -e ',sync:' | sort); do
+    if [ -n "$T0" ]; then
+      m=$(( ( $(stat -c %Y "$Q/$f") - T0 ) / 60 ))
+      [ -n "$FROM" ] && [ "$m" -lt "$FROM" ] && continue
+      [ -n "$TO" ] && [ "$m" -ge "$TO" ] && continue
+    fi
+    sel+=("$f")
+  done
+  echo "selected ${#sel[@]} inputs; replaying from #$START, at most $N"
+  for f in "${sel[@]:$START:$N}"; do
     id=${f%%,*}
     rm -f "$R"/cur.img "$R"/cur.c "$R"/cur.c.raw
-    docker exec $C bash -c "cd /usr/src/janus && ./utils/afl-parse -i samples/evaluation/btrfs-00.image -t btrfs -f '/replay/queue/$f' -o /replay/cur" >/dev/null 2>&1 \
+    docker exec $C bash -c "cd /usr/src/janus && ./utils/afl-parse -i samples/evaluation/$SEED -t $FS -f '$QC/$f' -o /replay/cur" >/dev/null 2>&1 \
       || { echo "  $id: decode-failed"; continue; }
     echo "  $id: $(run_one "$R/cur.img" "$R/cur.c" "$id")"
     count=$((count+1)); [ $count = 3 ] && check_recording
