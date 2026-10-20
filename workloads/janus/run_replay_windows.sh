@@ -12,7 +12,7 @@
 # Run from the filesystems-feature-study folder.
 set -u
 FS=ext4; SEED=ext4-00.image; Q=""; PROG=/replay/prog_ext4_00; TAG=e00
-WIN=30; NWIN=6; BATCH=500; PAUSE=3; PAUSE_REJ=1; C=janus-ext4; SKIP_BASE=0
+WIN=30; NWIN=6; BATCH=500; PAUSE=3; PAUSE_REJ=1; C=janus-ext4; SKIP_BASE=0; FIRST=1
 while [ $# -gt 0 ]; do
   case "$1" in
     --fs) FS=$2; shift 2 ;;          --seed) SEED=$2; shift 2 ;;
@@ -22,6 +22,7 @@ while [ $# -gt 0 ]; do
     --pause) PAUSE=$2; shift 2 ;;    --pause-rejected) PAUSE_REJ=$2; shift 2 ;;
     --container) C=$2; shift 2 ;;
     --skip-baseline) SKIP_BASE=1; shift ;;
+    --first-window) FIRST=$2; shift 2 ;;
     -h|--help) sed -n '2,12p' "$0"; exit 0 ;;
     *) echo "unknown option $1"; exit 1 ;;
   esac
@@ -60,7 +61,7 @@ log "start fs=$FS tag=$TAG kernel=$(uname -r) probes=$(wc -l < filesystems/$FS/k
 COMMON=(--fs "$FS" --seed "$SEED" --container "$C" --pause "$PAUSE" --pause-rejected "$PAUSE_REJ")
 [ "$SKIP_BASE" = 1 ] || session "${TAG}_base" --mode baseline --prog "$PROG" "${COMMON[@]}"
 
-for ((w=1; w<=NWIN; w++)); do
+for ((w=FIRST; w<=NWIN; w++)); do
   from=$(( (w-1)*WIN )); to=$(( w*WIN ))
   total=$(bash "$WL" --mode janus --queue "$Q" --from-min $from --to-min $to --count 0 "${COMMON[@]}" 2>/dev/null \
           | sed -n 's/^selected \([0-9]*\) inputs.*/\1/p')
