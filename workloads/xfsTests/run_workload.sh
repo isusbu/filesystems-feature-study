@@ -41,15 +41,20 @@ else
     umount /mnt/${FS}Test # Unmount so we can format
     umount /mnt/${FS}Scratch
 
-    echo ">>> Ensuring /dev/loop10 amd 11 are formatted as $FS..."
+    # loop devices come from set_env.sh (our own image files), never hard-coded
+    [ -n "${TEST_LOOP:-}" ] && [ -n "${SCRATCH_LOOP:-}" ] || { echo "Error: TEST_LOOP/SCRATCH_LOOP missing; rerun set_env.sh"; exit 1; }
+    for d in "$TEST_LOOP" "$SCRATCH_LOOP"; do
+        losetup "$d" | grep -q "/srv/xfstests_imgs\|${IMG_DIR:-/srv/xfstests_imgs}" || { echo "Error: $d is not one of our image files - refusing to format it"; losetup "$d"; exit 1; }
+    done
+    echo ">>> Ensuring $TEST_LOOP and $SCRATCH_LOOP are formatted as $FS..."
     if [ "$FS" == "ext4" ]; then
         # ext4 uses -F (capital) to force formatting a partition
-        mkfs.ext4 -F /dev/loop10
-        mkfs.ext4 -F /dev/loop11
+        mkfs.ext4 -F "$TEST_LOOP"
+        mkfs.ext4 -F "$SCRATCH_LOOP"
     else
-        # f2fs and xfs use -f (lowercase)
-        mkfs.${FS} -f /dev/loop10
-        mkfs.${FS} -f /dev/loop11
+        # f2fs, xfs and btrfs use -f (lowercase)
+        mkfs.${FS} -f "$TEST_LOOP"
+        mkfs.${FS} -f "$SCRATCH_LOOP"
     fi
 fi
 
