@@ -1,5 +1,10 @@
-We need the loop devices to be setup and be ready before running scripts,
-those steps are mentioned in filesystems folder for each fs.
+set_env.sh creates its own sparse image files in /srv/xfstests_imgs (6G each;
+IMG_DIR and IMG_SIZE override) and attaches them to free loop devices, so no
+loop device setup is needed. run_workload.sh refuses to format a loop device
+that is not backed by one of these images.
+
+For btrfs, set_env.sh also adds 4 pool images as SCRATCH_DEV_POOL, needed by
+multi-device tests (POOL_EXTRA overrides the count, 0 disables it).
 
 We need xfstests repo in /var/tmp to be available
 
